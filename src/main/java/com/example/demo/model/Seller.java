@@ -31,6 +31,6 @@ public class Seller {
     @Column
     private String pan;
 
-    @OneToMany(mappedBy = "seller")
+    @OneToMany(mappedBy = "seller",cascade = CascadeType.ALL)
     List<Product> productList = new ArrayList<>();
 }

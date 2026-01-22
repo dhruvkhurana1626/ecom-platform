@@ -25,13 +25,10 @@ public class Product {
     @Column
     private int price;
 
-    @Column(length = 10,nullable = false,unique = true)
-    private String phonenumber;
-
     @Enumerated(value = EnumType.STRING)
     Type type;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne
     @JoinColumn(name="seller_id")
     Seller seller;
 

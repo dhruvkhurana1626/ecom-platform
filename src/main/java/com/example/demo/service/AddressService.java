@@ -1,10 +1,15 @@
 package com.example.demo.service;
 
+import com.example.demo.dto.request.AddressRequest;
+import com.example.demo.dto.response.AddressResponse;
+import com.example.demo.exception.AddressNotFound;
 import com.example.demo.exception.CustomerNotFound;
 import com.example.demo.model.Address;
 import com.example.demo.model.Customer;
 import com.example.demo.repository.AddressRepository;
 import com.example.demo.repository.CustomerRepository;
+import com.example.demo.transformers.AddressTransformer;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -20,17 +25,41 @@ public class AddressService {
     @Autowired
     AddressRepository addressRepository;
 
-    public Address addAddress(Address address, int id) {
+    @Transactional
+    public AddressResponse addAddress(AddressRequest addressRequest, int id) {
         Optional<Customer> optionalCustomer = customerRepository.findById(id);
         if(optionalCustomer.isEmpty()){
             throw new CustomerNotFound("Invalid Id");
         }
 
+        Address address = AddressTransformer.addressRequestToAddress(addressRequest);
+
         Customer customer = optionalCustomer.get();
-        Address savedAddress = addressRepository.save(address);
-        customer.setAddress(savedAddress);
+        customer.setAddress(address);
         customerRepository.save(customer);
 
-        return savedAddress;
+        return AddressTransformer.addressToAddressResponse(address);
     }
+
+    @Transactional
+    public void deleteAddress(int id) {
+        Optional<Customer> optionalCustomer = customerRepository.findById(id);
+        if(optionalCustomer.isEmpty()){
+            throw new CustomerNotFound("Customer With ID -" + id + "doesnt exist");
+        }
+
+        Customer customer = optionalCustomer.get();
+
+        Address address = customer.getAddress();
+        if(address==null){
+            throw new AddressNotFound("Pls save at least one address before trying to delete.");
+        }
+
+        customer.setAddress(null);
+        customerRepository.save(customer);
+
+
+        addressRepository.delete(address);
+    }
+
 }

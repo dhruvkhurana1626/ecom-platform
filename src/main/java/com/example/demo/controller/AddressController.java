@@ -1,5 +1,8 @@
 package com.example.demo.controller;
 
+import com.example.demo.dto.request.AddressRequest;
+import com.example.demo.dto.response.AddressResponse;
+import com.example.demo.exception.AddressNotFound;
 import com.example.demo.exception.CustomerNotFound;
 import com.example.demo.model.Address;
 import com.example.demo.service.AddressService;
@@ -17,13 +20,23 @@ public class AddressController {
     AddressService addressService;
 
     @PostMapping
-    public ResponseEntity addAddress (@RequestBody Address address,
+    public ResponseEntity addAddress (@RequestBody AddressRequest addressRequest,
                            @RequestParam ("id") int id){
         try {
-            Address response = addressService.addAddress(address, id);
+            AddressResponse response = addressService.addAddress(addressRequest, id);
             return new ResponseEntity(response,HttpStatus.OK);
         } catch (CustomerNotFound e) {
             return new ResponseEntity(e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @DeleteMapping
+    public ResponseEntity deleteAddress(@RequestParam ("id") int id){
+        try{
+            addressService.deleteAddress(id);
+            return new ResponseEntity("Address of customer with ID- "+id+" is deleted successfully.",HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity(e.getMessage(),HttpStatus.BAD_REQUEST);
         }
     }
 

@@ -22,6 +22,7 @@ public class ProductTransformer {
         ProductResponse productResponse = ProductResponse.builder()
                 .name(product.getName())
                 .price(product.getPrice())
+                .type(product.getType())
                 .sellerResponse(SellerTransformer.sellerToSellerResponse(product.getSeller()))
                 .build();
 

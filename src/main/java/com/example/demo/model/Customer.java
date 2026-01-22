@@ -36,7 +36,7 @@ public class Customer {
     @Column(length = 10,nullable = false)
     private String phonenumber;
 
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name="address_id")
     Address address;
 

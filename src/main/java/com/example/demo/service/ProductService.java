@@ -2,6 +2,7 @@ package com.example.demo.service;
 
 import com.example.demo.dto.request.ProductRequest;
 import com.example.demo.dto.response.ProductResponse;
+import com.example.demo.dto.response.SellerResponse;
 import com.example.demo.exception.SellerNotFound;
 import com.example.demo.model.Product;
 import com.example.demo.model.Seller;
@@ -29,13 +30,15 @@ public class ProductService {
             throw new SellerNotFound("Invalid Id");
         }
 
+        Seller seller = optionalSeller.get();
         Product product = ProductTransformer.productRequestToProduct(productRequest);
-        product.setSeller(optionalSeller.get());
+        seller.getProductList().add(product);
 
-        Product savedProduct = productRepository.save(product);
+        product.setSeller(seller);
 
-        ProductResponse productResponse = ProductTransformer.productToProductResponse(savedProduct);
+        sellerRepository.save(seller);
 
+        ProductResponse productResponse = ProductTransformer.productToProductResponse(product);
         return productResponse;
     }
 }

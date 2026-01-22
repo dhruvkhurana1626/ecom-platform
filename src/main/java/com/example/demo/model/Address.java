@@ -1,16 +1,14 @@
 package com.example.demo.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
 @Setter
 @Entity
+@Builder
 
 @Table(name = "address_details")
 public class Address {
@@ -19,16 +17,16 @@ public class Address {
     @Id
     private Integer id;
 
-    @Column
+    @Column(nullable = false)
     private String houseno;
 
-    @Column
+    @Column(nullable = false)
     private String city;
 
-    @Column
+    @Column(nullable = false)
     private String state;
 
-    @Column
+    @Column(nullable = false)
     private int pinCode;
 
 }
