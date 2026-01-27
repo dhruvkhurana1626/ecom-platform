@@ -1,6 +1,6 @@
 package com.example.demo.model;
 
-import com.example.demo.enums.Type;
+import com.example.demo.enums.Category;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -26,7 +26,7 @@ public class Product {
     private int price;
 
     @Enumerated(value = EnumType.STRING)
-    Type type;
+    Category category;
 
     @ManyToOne
     @JoinColumn(name="seller_id")
@@ -35,8 +35,7 @@ public class Product {
     @OneToMany(mappedBy = "product")
     List<Review> reviewList = new ArrayList<>();
 
-    @ManyToMany
-    @JoinTable
-    List<OrderEntity> orderEntityList = new ArrayList<>();
+    @OneToMany(mappedBy = "product")
+    List<OrderItems> orderItems = new ArrayList<>();
 
 }

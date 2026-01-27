@@ -38,4 +38,16 @@ public class AddressController {
         }
     }
 
+    @PutMapping
+    public ResponseEntity updateAddress(@RequestBody AddressRequest addressRequest,
+                                        @RequestParam ("id") int id){
+        try{
+            AddressResponse response = addressService.updateAddress(addressRequest,id);
+            return new ResponseEntity(response,HttpStatus.OK);
+        }
+        catch (CustomerNotFound e){
+            return new ResponseEntity(e.getMessage(),HttpStatus.CONFLICT);
+        }
+    }
+
 }

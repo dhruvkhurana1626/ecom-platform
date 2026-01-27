@@ -59,4 +59,25 @@ public class AddressService {
         customerRepository.save(customer);
     }
 
+    public AddressResponse updateAddress(AddressRequest addressRequest, int id) {
+
+        //validating customer id
+        Customer customer = customerRepository.findById(id).orElseThrow(()->new CustomerNotFound("Customer ID is Invalid"));
+
+        Address address = customer.getAddress();
+
+        //validation address
+        if (address == null) {
+            throw new AddressNotFound("No address found to update");
+        }
+
+        //update
+        address.setHouseno(addressRequest.getHouseno());
+        address.setPinCode(addressRequest.getPinCode());
+        address.setState(addressRequest.getState());
+        address.setCity(addressRequest.getCity());
+
+        //return the response
+        return AddressTransformer.addressToAddressResponse(address);
+    }
 }

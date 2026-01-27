@@ -32,12 +32,18 @@ public class ReviewController {
     @PostMapping
     public ResponseEntity addReview(@RequestBody ReviewRequest reviewRequest,
                                     @RequestParam ("cid") int custId,
-                                    @RequestParam ("pid") String prodId){
+                                    @RequestParam ("pid") int prodId){
         try {
             ReviewResponse reviewResponse = reviewService.addReview(reviewRequest,custId,prodId);
             return new ResponseEntity(reviewResponse,HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity(e.getMessage(),HttpStatus.BAD_REQUEST);
         }
+    }
+
+    @GetMapping("/review-by-word")
+    public ResponseEntity getReviewByWord(String word){
+        List<ReviewResponse> reviewResponse = reviewService.getReviewByWord(word);
+        return new ResponseEntity(reviewResponse,HttpStatus.OK);
     }
 }

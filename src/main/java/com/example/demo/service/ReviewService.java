@@ -14,6 +14,7 @@ import com.example.demo.transformers.ReviewTransformer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -37,7 +38,7 @@ public class ReviewService {
         return  reviewList;
     }
 
-    public ReviewResponse addReview(ReviewRequest reviewRequest, int custId, String prodId) {
+    public ReviewResponse addReview(ReviewRequest reviewRequest, int custId, int prodId) {
         Customer customer = customerRepository.findById(custId)
                 .orElseThrow(()-> new CustomerNotFound("Customer id is Invalid"));
 
@@ -55,5 +56,20 @@ public class ReviewService {
         Review savedReview = reviewRepository.save(review);
 
         return ReviewTransformer.reviewToReviewResponse(savedReview);
+    }
+
+    public List<ReviewResponse> getReviewByWord(String word) {
+
+        //searching review with same word in repo
+        List<Review> reviewList = reviewRepository.findByCommentContainingIgnoreCase(word);
+
+        //converting review into review response
+        List<ReviewResponse> reviewResponseList = new ArrayList<>();
+        for(Review r : reviewList){
+            reviewResponseList.add(ReviewTransformer.reviewToReviewResponse(r));
+        }
+
+        //returning final list
+        return reviewResponseList;
     }
 }

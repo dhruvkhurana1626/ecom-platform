@@ -2,7 +2,7 @@ package com.example.demo.service;
 
 import com.example.demo.dto.request.ProductRequest;
 import com.example.demo.dto.response.ProductResponse;
-import com.example.demo.dto.response.SellerResponse;
+import com.example.demo.enums.Category;
 import com.example.demo.exception.SellerNotFound;
 import com.example.demo.model.Product;
 import com.example.demo.model.Seller;
@@ -12,6 +12,8 @@ import com.example.demo.transformers.ProductTransformer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -40,5 +42,20 @@ public class ProductService {
 
         ProductResponse productResponse = ProductTransformer.productToProductResponse(product);
         return productResponse;
+    }
+
+    public List<ProductResponse> getProductByCategory(Category category) {
+
+        //Finding Product with the Category
+        List<Product> productList = productRepository.findByCategory(category);
+
+        //Converting Product into Product Response
+        List<ProductResponse> productResponseList = new ArrayList<>();
+        for(Product p : productList){
+            productResponseList.add(ProductTransformer.productToProductResponse(p));
+        }
+
+        //Return Product Response List
+        return productResponseList;
     }
 }

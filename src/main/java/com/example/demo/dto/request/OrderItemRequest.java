@@ -1,6 +1,5 @@
 package com.example.demo.dto.request;
 
-import com.example.demo.enums.Category;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -8,11 +7,10 @@ import lombok.Setter;
 
 @NoArgsConstructor
 @AllArgsConstructor
-@Getter
 @Setter
+@Getter
 
-public class ProductRequest {
-    String name;
-    int price;
-    Category category;
+public class OrderItemRequest {
+    private int productId;
+    private int Quantity;
 }

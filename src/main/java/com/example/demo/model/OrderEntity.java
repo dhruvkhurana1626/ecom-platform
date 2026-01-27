@@ -2,10 +2,7 @@ package com.example.demo.model;
 
 import com.example.demo.enums.OrderStatus;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,6 +12,8 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
+
+@Builder
 public class OrderEntity {
 
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -29,6 +28,10 @@ public class OrderEntity {
     @Enumerated(value = EnumType.STRING)
     private OrderStatus orderStatus;
 
-    @ManyToMany(mappedBy = "orderEntityList")
-    List<Product> productList = new ArrayList<>();
+    @OneToMany(mappedBy = "orderEntity")
+    List<OrderItems> orderItems = new ArrayList<>();
+
+    @ManyToOne
+    @JoinColumn(name="customer_id")
+    Customer customer;
 }
