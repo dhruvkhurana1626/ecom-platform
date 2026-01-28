@@ -15,10 +15,10 @@ public class OrderController  {
     @Autowired
     OrderService orderService;
 
-    @PostMapping
-    public ResponseEntity createOrder(@RequestParam ("custId") int customerId,
-                                      @RequestBody List<OrderItemRequest> orderItemRequest){
-
-    }
+//    @PostMapping
+//    public ResponseEntity createOrder(@RequestParam ("custId") int customerId,
+//                                      @RequestBody List<OrderItemRequest> orderItemRequest){
+//
+//    }
 
 }
