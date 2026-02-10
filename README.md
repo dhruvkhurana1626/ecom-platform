@@ -1,68 +1,47 @@
-# Swiggato Backend – Spring Boot REST APIs
+# Ecommerce Backend – Spring Boot REST APIs
 
-This project is a backend implementation of a Swiggy-like food ordering system built using **Spring Boot**.  
-It exposes RESTful APIs for managing customers, sellers, products, addresses, orders, and reviews.  
+Backend implementation of an Ecommerce application built using **Spring Boot**.  
+The project exposes REST APIs for managing customers, sellers, products, addresses, orders, and reviews.  
 All APIs are documented and tested using **Swagger UI**, without any frontend dependency.
 
 ---
 
 ## Tech Stack
-
-- Java  
-- Spring Boot  
-- Spring MVC  
-- Spring Data JPA (Hibernate)  
-- REST APIs  
-- MySQL  
-- Swagger (OpenAPI)  
-- JavaMail Sender (Email Notifications)
-
----
-
-## Modules & APIs
-
-### 1. Customer Module
-- Register a new customer
-- Fetch customer by ID
-- Fetch customers by gender or age
-- **Email notification sent on successful registration**
-
-### 2. Seller Module
-- Onboard sellers/restaurants into the system
-
-### 3. Product Module
-- Add products for a seller
-- Fetch products by category
-
-### 4. Address Module
-- Add address for a customer
-- Update customer address
-- Delete customer address
-
-### 5. Order Module
-- Place an order for a customer
-- Accepts multiple order items
-- **Email notification sent on successful order placement**
-
-### 6. Review Module
-- Add reviews for products
-- Fetch reviews by customer or keyword
+- Java
+- Spring Boot
+- Spring MVC
+- Spring Data JPA (Hibernate)
+- REST APIs
+- MySQL
+- Swagger (OpenAPI)
+- JavaMail Sender
 
 ---
 
-## Email Notifications
-
-The application sends transactional emails for:
-- Customer registration confirmation
-- Order placement confirmation
-
-Email logic is implemented at the **service layer** using a mail sender utility.
+## Core Features
+- Customer and Seller management
+- Product catalog and category-based filtering
+- Address management for customers
+- Order placement with multiple order items
+- Product reviews and keyword-based search
+- Transactional emails on customer registration and order placement
+- Unit and repository-level testing
 
 ---
 
-## API Documentation (Swagger)
+## API Documentation
+Swagger UI is used for API documentation and testing.
 
-All APIs are documented using Swagger UI.
 
-After running the application, access Swagger at:
+---
 
+## How to Run
+1. Clone the repository
+2. Configure database and email properties in `application.properties`
+3. Run the application.
+4. 4. Open Swagger UI to test APIs
+
+---
+
+## Author
+Dhruv Khurana
