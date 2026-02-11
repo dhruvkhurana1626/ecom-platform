@@ -12,6 +12,6 @@ import lombok.*;
 public class ReviewResponse {
     private String comment;
     private int rating;
-    private CustomerResponse customerResponse;
-    private ProductResponse productResponse;
+    private String productName;
+    private int productPrice;
 }

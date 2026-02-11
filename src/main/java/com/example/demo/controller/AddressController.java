@@ -4,6 +4,7 @@ import com.example.demo.dto.request.AddressRequest;
 import com.example.demo.dto.response.AddressResponse;
 import com.example.demo.exception.CustomerNotFound;
 import com.example.demo.service.AddressService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -11,11 +12,10 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("api/v1/address")
-
+@RequiredArgsConstructor
 public class AddressController {
 
-    @Autowired
-    AddressService addressService;
+    private final AddressService addressService;
 
     @PostMapping
     public ResponseEntity addAddress (@RequestBody AddressRequest addressRequest,

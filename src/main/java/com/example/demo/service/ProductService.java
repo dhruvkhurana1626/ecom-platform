@@ -1,61 +1,54 @@
 package com.example.demo.service;
 
+import com.example.demo.Utility.Validation;
 import com.example.demo.dto.request.ProductRequest;
 import com.example.demo.dto.response.ProductResponse;
 import com.example.demo.enums.Category;
-import com.example.demo.exception.SellerNotFound;
 import com.example.demo.model.Product;
 import com.example.demo.model.Seller;
 import com.example.demo.repository.ProductRepository;
 import com.example.demo.repository.SellerRepository;
 import com.example.demo.transformers.ProductTransformer;
-import org.springframework.beans.factory.annotation.Autowired;
+import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor public class ProductService {
 
-public class ProductService {
+    private final ProductRepository productRepository;
+    private final SellerRepository sellerRepository;
+    private final Validation validation;
 
-    @Autowired
-    ProductRepository productRepository;
+    @Transactional
+    public ProductResponse addProduct(ProductRequest productRequest, int sellerId) {
 
-    @Autowired
-    SellerRepository sellerRepository;
+        // Validate if seller exists
+        Seller seller = validation.checkIfSellerExist(sellerId);
 
-    public ProductResponse addProduct(ProductRequest productRequest, int id) {
-        Optional<Seller> optionalSeller = sellerRepository.findById(id);
-        if(optionalSeller.isEmpty()){
-            throw new SellerNotFound("Invalid Id");
-        }
-
-        Seller seller = optionalSeller.get();
+        // Convert request DTO to Product entity
         Product product = ProductTransformer.productRequestToProduct(productRequest);
-        seller.getProductList().add(product);
 
+        // Establish bidirectional relationship between seller and product
+        seller.getProductList().add(product);
         product.setSeller(seller);
 
+        // Persist seller (product will be saved via cascading if configured)
         sellerRepository.save(seller);
 
-        ProductResponse productResponse = ProductTransformer.productToProductResponse(product);
-        return productResponse;
+        // Return response DTO
+        return ProductTransformer.productToProductResponse(product);
     }
 
     public List<ProductResponse> getProductByCategory(Category category) {
 
-        //Finding Product with the Category
-        List<Product> productList = productRepository.findByCategory(category);
-
-        //Converting Product into Product Response
-        List<ProductResponse> productResponseList = new ArrayList<>();
-        for(Product p : productList){
-            productResponseList.add(ProductTransformer.productToProductResponse(p));
-        }
-
-        //Return Product Response List
-        return productResponseList;
+        // Fetch products by category
+        return productRepository.findByCategory(category)
+                .stream()
+                // Convert Product entity to response DTO
+                .map(ProductTransformer::productToProductResponse)
+                .toList();
     }
 }

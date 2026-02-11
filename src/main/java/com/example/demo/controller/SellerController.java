@@ -2,6 +2,8 @@ package com.example.demo.controller;
 
 import com.example.demo.dto.request.SellerRequest;
 import com.example.demo.dto.response.SellerResponse;
+import com.example.demo.exception.EmailAlreadyUsed;
+import com.example.demo.exception.PanAlreadyUsed;
 import com.example.demo.service.SellerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -20,7 +22,15 @@ public class SellerController {
 
     @PostMapping
     public ResponseEntity addSeller(@RequestBody SellerRequest sellerRequest){
-        SellerResponse response = sellerService.addSeller(sellerRequest);
-        return new ResponseEntity(response, HttpStatus.OK);
+        try{
+            SellerResponse response = sellerService.addSeller(sellerRequest);
+            return new ResponseEntity(response, HttpStatus.OK);
+        } catch (EmailAlreadyUsed e) {
+            return new ResponseEntity(e.getMessage(),HttpStatus.BAD_REQUEST);
+        }
+        catch (PanAlreadyUsed e){
+            return new ResponseEntity(e.getMessage(),HttpStatus.BAD_REQUEST);
+        }
+
     }
 }

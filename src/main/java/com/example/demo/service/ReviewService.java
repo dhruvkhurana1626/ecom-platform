@@ -1,9 +1,8 @@
 package com.example.demo.service;
 
+import com.example.demo.Utility.Validation;
 import com.example.demo.dto.request.ReviewRequest;
 import com.example.demo.dto.response.ReviewResponse;
-import com.example.demo.exception.CustomerNotFound;
-import com.example.demo.exception.ProductNotFound;
 import com.example.demo.model.Customer;
 import com.example.demo.model.Product;
 import com.example.demo.model.Review;
@@ -11,65 +10,61 @@ import com.example.demo.repository.CustomerRepository;
 import com.example.demo.repository.ProductRepository;
 import com.example.demo.repository.ReviewRepository;
 import com.example.demo.transformers.ReviewTransformer;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
 public class ReviewService {
 
-    @Autowired
-    CustomerRepository customerRepository;
+    private final CustomerRepository customerRepository;
+    private final ProductRepository productRepository;
+    private final ReviewRepository reviewRepository;
+    private final Validation validation;
 
-    @Autowired
-    ProductRepository productRepository;
+    public List<ReviewResponse> getReviewById(int customerId) {
 
-    @Autowired
-    ReviewRepository reviewRepository;
+        // Validate if customer exists
+        Customer customer = validation.checkIfCustomerExist(customerId);
 
-    public List<Review> getReviewById(int id) {
-        Customer customer = customerRepository.findById(id)
-                .orElseThrow(()-> new CustomerNotFound("Customer Id is Invalid"));
-
-        List<Review> reviewList = customer.getReviewList();
-        return  reviewList;
+        // Convert customer's reviews into response DTOs
+        return customer.getReviewList()
+                .stream()
+                .map(ReviewTransformer::reviewToReviewResponse)
+                .toList();
     }
 
-    public ReviewResponse addReview(ReviewRequest reviewRequest, int custId, int prodId) {
-        Customer customer = customerRepository.findById(custId)
-                .orElseThrow(()-> new CustomerNotFound("Customer id is Invalid"));
+    public ReviewResponse addReview(ReviewRequest reviewRequest,
+                                    int customerId,
+                                    int productId) {
 
-        Product product = productRepository.findById(prodId)
-                .orElseThrow(()-> new ProductNotFound("Product id is Inavlid"));
+        // Validate customer and product existence
+        Customer customer = validation.checkIfCustomerExist(customerId);
+        Product product = validation.checkIfProductExist(productId);
 
-        //Review Request to Review
+        // Convert request DTO to Review entity
         Review review = ReviewTransformer.reviewRequestToReview(reviewRequest);
 
-        //Relationship
+        // Establish relationships
         review.setCustomer(customer);
         review.setProduct(product);
 
-        //Saved
+        // Persist review
         Review savedReview = reviewRepository.save(review);
 
+        // Return response DTO
         return ReviewTransformer.reviewToReviewResponse(savedReview);
     }
 
     public List<ReviewResponse> getReviewByWord(String word) {
 
-        //searching review with same word in repo
-        List<Review> reviewList = reviewRepository.findByCommentContainingIgnoreCase(word);
-
-        //converting review into review response
-        List<ReviewResponse> reviewResponseList = new ArrayList<>();
-        for(Review r : reviewList){
-            reviewResponseList.add(ReviewTransformer.reviewToReviewResponse(r));
-        }
-
-        //returning final list
-        return reviewResponseList;
+        // Fetch reviews containing the given keyword (case-insensitive)
+        return reviewRepository.findByCommentContainingIgnoreCase(word)
+                .stream()
+                // Convert Review entity to response DTO
+                .map(ReviewTransformer::reviewToReviewResponse)
+                .toList();
     }
 }

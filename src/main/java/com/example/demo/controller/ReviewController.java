@@ -22,8 +22,8 @@ public class ReviewController {
     @GetMapping
     public ResponseEntity getReviewById(@RequestParam("id") int id) {
         try {
-            List<Review> response = reviewService.getReviewById(id);
-            return new ResponseEntity(response, HttpStatus.FOUND);
+            List<ReviewResponse> response = reviewService.getReviewById(id);
+            return new ResponseEntity(response, HttpStatus.OK);
         } catch (CustomerNotFound e) {
             return new ResponseEntity(e.getMessage(), HttpStatus.BAD_REQUEST);
         }

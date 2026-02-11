@@ -2,13 +2,16 @@ package com.example.demo.Utility;
 
 import com.example.demo.dto.request.CustomerRequest;
 import com.example.demo.dto.request.OrderItemRequest;
-import com.example.demo.exception.CustomerNotFound;
-import com.example.demo.exception.EmailAlreadyUsed;
-import com.example.demo.exception.PhoneAlreadyUsed;
+import com.example.demo.dto.request.SellerRequest;
+import com.example.demo.exception.*;
 import com.example.demo.model.Customer;
-import com.example.demo.model.OrderItems;
+import com.example.demo.model.Product;
+import com.example.demo.model.Seller;
 import com.example.demo.repository.CustomerRepository;
+import com.example.demo.repository.ProductRepository;
+import com.example.demo.repository.SellerRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -18,24 +21,68 @@ import java.util.List;
 public class Validation {
 
     private final CustomerRepository customerRepository;
+    private final SellerRepository sellerRepository;
+    private final ProductRepository productRepository;
 
-    public Customer checkIfCustomerExist(int customerId){
-        Customer customer = customerRepository.findById(customerId)
-                .orElseThrow(()-> new CustomerNotFound("Customer Id is Invalid"));
+    // -------------------- EXISTENCE VALIDATIONS --------------------
 
-        return customer;
+    public Customer checkIfCustomerExist(int customerId) {
+
+        // Ensure customer exists before proceeding
+        return customerRepository.findById(customerId)
+                .orElseThrow(() ->
+                        new CustomerNotFound("Customer not found with id: " + customerId));
     }
+
+    public Seller checkIfSellerExist(int sellerId) {
+
+        // Ensure seller exists before proceeding
+        return sellerRepository.findById(sellerId)
+                .orElseThrow(() ->
+                        new SellerNotFound("Seller not found with id: " + sellerId));
+    }
+
+    public Product checkIfProductExist(int productId) {
+
+        // Ensure product exists before proceeding
+        return productRepository.findById(productId)
+                .orElseThrow(() ->
+                        new ProductNotFound("Product not found with id: " + productId));
+    }
+
+    // -------------------- CREATE VALIDATIONS --------------------
 
     public void validateNewCustomer(CustomerRequest request) {
+
+        // Prevent duplicate customer email
         if (customerRepository.existsByEmail(request.getEmail())) {
-            throw new EmailAlreadyUsed("Email already used");
+            throw new EmailAlreadyUsed("Email already in use");
         }
+
+        // Prevent duplicate customer phone number
         if (customerRepository.existsByPhonenumber(request.getPhonenumber())) {
-            throw new PhoneAlreadyUsed("Phone number already used");
+            throw new PhoneAlreadyUsed("Phone number already in use");
         }
     }
 
-    public void validateOrderItemsList(List<OrderItemRequest> orderItemRequestList){
+    public void validateNewSeller(SellerRequest sellerRequest) {
+
+        // Prevent duplicate seller email
+        if (sellerRepository.existsByEmail(sellerRequest.getEmail())) {
+            throw new EmailAlreadyUsed("Email already in use");
+        }
+
+        // Prevent duplicate PAN number
+        if (sellerRepository.existsByPan(sellerRequest.getPan())) {
+            throw new PanAlreadyUsed("PAN already in use");
+        }
+    }
+
+    // -------------------- ORDER VALIDATIONS --------------------
+
+    public void validateOrderItemsList(List<OrderItemRequest> orderItemRequestList) {
+
+        // Order must contain at least one product
         if (orderItemRequestList == null || orderItemRequestList.isEmpty()) {
             throw new IllegalArgumentException("Order must contain at least one item");
         }

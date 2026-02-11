@@ -19,8 +19,8 @@ public class ReviewTransformer {
         ReviewResponse reviewResponse = ReviewResponse.builder()
                 .comment(review.getComment())
                 .rating(review.getRating())
-                .customerResponse(CustomerTransformer.customerToCustomerResponse(review.getCustomer()))
-                .productResponse(ProductTransformer.productToProductResponse(review.getProduct()))
+                .productName(review.getProduct().getName())
+                .productPrice(review.getProduct().getPrice())
                 .build();
 
         return reviewResponse;

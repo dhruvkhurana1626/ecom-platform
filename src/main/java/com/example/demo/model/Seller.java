@@ -26,7 +26,7 @@ public class Seller {
     @Column(unique = true,nullable = false)
     private String email;
 
-    @Column
+    @Column(unique = true,nullable = false)
     private String pan;
 
     @OneToMany(mappedBy = "seller",cascade = CascadeType.ALL)
