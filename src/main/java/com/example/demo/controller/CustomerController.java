@@ -61,4 +61,29 @@ public class CustomerController {
         return new ResponseEntity(customerResponseList,HttpStatus.OK);
     }
 
+    @PutMapping
+    public ResponseEntity upadteCustomer(@RequestParam int customerId,
+                                         @RequestBody CustomerRequest customerRequest){
+        try {
+            CustomerResponse customerResponse = customerService.updateCustomer(customerId,customerRequest);
+            return new ResponseEntity(customerResponse,HttpStatus.OK);
+        }
+        catch (RuntimeException e){
+            return new ResponseEntity(e.getMessage(),HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @DeleteMapping
+    public ResponseEntity deleteCustomer(@RequestParam int customerId){
+        try{
+            String msg = customerService.deleteCustomer(customerId);
+            return new ResponseEntity(msg,HttpStatus.OK);
+        } catch (RuntimeException e) {
+            return new ResponseEntity("Customer Id is Invalid",HttpStatus.BAD_REQUEST);
+        }
+    }
+
+//    @GetMapping("/me")
+//    public ResponseEntity getLoggedInCustomer()
+
 }

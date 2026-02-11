@@ -11,7 +11,6 @@ import com.example.demo.repository.CustomerRepository;
 import com.example.demo.repository.ProductRepository;
 import com.example.demo.repository.SellerRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -48,6 +47,18 @@ public class Validation {
         return productRepository.findById(productId)
                 .orElseThrow(() ->
                         new ProductNotFound("Product not found with id: " + productId));
+    }
+
+    public boolean checkIfEmailExist(String email){
+
+        //Ensure email dont exist before proceeding
+        return customerRepository.existsByEmail(email);
+    }
+
+    public boolean checkIfPhoneNumberExist(String phonenumber){
+
+        //Ensure phonenumber dont exist before proceeding
+        return customerRepository.existsByPhonenumber(phonenumber);
     }
 
     // -------------------- CREATE VALIDATIONS --------------------

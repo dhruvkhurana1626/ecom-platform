@@ -66,9 +66,9 @@ public class CustomerService {
         return CustomerTransformer.customerToCustomerResponse(savedCustomer);
     }
 
-    public CustomerResponse getCustomerById(int id) {
+    public CustomerResponse getCustomerById(int customerId) {
         //Checking if Customer with Id Exists - Exception also thrown via Validation Checker
-        Customer customer = validation.checkIfCustomerExist(id);
+        Customer customer = validation.checkIfCustomerExist(customerId);
 
         //return CustomerResponse if Customer Exist
         return CustomerTransformer.customerToCustomerResponse(customer);
@@ -87,4 +87,55 @@ public class CustomerService {
         return customerResponseList;
     }
 
+    @Transactional
+    public CustomerResponse updateCustomer(int customerId, CustomerRequest customerRequest) {
+
+        // 1. Check if customer exists
+        Customer customer = validation.checkIfCustomerExist(customerId);
+
+        // 2. Validate email only if user wants to update it
+        if (customerRequest.getEmail() != null &&
+                !customerRequest.getEmail().equals(customer.getEmail())) {
+
+            if (validation.checkIfEmailExist(customerRequest.getEmail())) {
+                throw new EmailAlreadyUsed("Email already used");
+            }
+            customer.setEmail(customerRequest.getEmail());
+        }
+
+        // 3. Validate phone only if user wants to update it
+        if (customerRequest.getPhonenumber() != null &&
+                !customerRequest.getPhonenumber().equals(customer.getPhonenumber())) {
+
+            if (validation.checkIfPhoneNumberExist(customerRequest.getPhonenumber())) {
+                throw new PhoneAlreadyUsed("Phone number already used");
+            }
+            customer.setPhonenumber(customerRequest.getPhonenumber());
+        }
+
+        // 4. Update remaining fields
+        if (customerRequest.getName() != null) {
+            customer.setName(customerRequest.getName());
+        }
+
+        if (customerRequest.getAge() > 0) {
+            customer.setAge(customerRequest.getAge());
+        }
+
+        if (customerRequest.getGender() != null) {
+            customer.setGender(customerRequest.getGender());
+        }
+
+        // 5. Save updated customer
+        Customer savedCustomer = customerRepository.save(customer);
+
+        // 6. Return response
+        return CustomerTransformer.customerToCustomerResponse(savedCustomer);
+    }
+
+    public String deleteCustomer(int customerId) {
+        Customer customer = validation.checkIfCustomerExist(customerId);
+        customerRepository.delete(customer);
+        return "Customer with id " + customerId + " deleted successfully";
+    }
 }
