@@ -2,35 +2,40 @@ package com.example.demo.controller;
 
 import com.example.demo.dto.request.SellerRequest;
 import com.example.demo.dto.response.SellerResponse;
-import com.example.demo.exception.EmailAlreadyUsed;
-import com.example.demo.exception.PanAlreadyUsed;
 import com.example.demo.service.SellerService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("api/v1/seller")
+@RequiredArgsConstructor
 public class SellerController {
 
-    @Autowired
-    SellerService sellerService;
+    /**
+     * SellerService handles validation logic such as:
+     * - Duplicate email detection
+     * - Duplicate PAN validation
+     * - Persistence of seller entity
+     *
+     * Controller strictly delegates request handling.
+     */
+    private final SellerService sellerService;
 
+    /**
+     * Registers a new seller.
+     *
+     * Business exceptions like EmailAlreadyUsed
+     * or PanAlreadyUsed are handled centrally
+     * by GlobalExceptionHandler.
+     */
     @PostMapping
-    public ResponseEntity addSeller(@RequestBody SellerRequest sellerRequest){
-        try{
-            SellerResponse response = sellerService.addSeller(sellerRequest);
-            return new ResponseEntity(response, HttpStatus.OK);
-        } catch (EmailAlreadyUsed e) {
-            return new ResponseEntity(e.getMessage(),HttpStatus.BAD_REQUEST);
-        }
-        catch (PanAlreadyUsed e){
-            return new ResponseEntity(e.getMessage(),HttpStatus.BAD_REQUEST);
-        }
+    public ResponseEntity addSeller(@RequestBody SellerRequest sellerRequest) {
 
+        SellerResponse response =
+                sellerService.addSeller(sellerRequest);
+
+        return new ResponseEntity(response, HttpStatus.CREATED);
     }
 }
