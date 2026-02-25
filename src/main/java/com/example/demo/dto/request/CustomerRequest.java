@@ -15,4 +15,5 @@ public class CustomerRequest {
     private String email;
     private Gender gender;
     private String phonenumber;
+    private String password;
 }

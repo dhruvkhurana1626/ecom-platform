@@ -10,25 +10,20 @@ import java.time.LocalDateTime;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    /**
-     * Handles all "resource not found" type exceptions.
-     * These represent valid requests but missing domain entities.
-     */
+
     @ExceptionHandler({
             AddressNotFound.class,
             CustomerNotFound.class,
             ProductNotFound.class,
-            SellerNotFound.class
+            SellerNotFound.class,
+            EmailNotFound.class
     })
     public ResponseEntity<ErrorResponse> handleResourceNotFound(RuntimeException ex) {
 
         return buildErrorResponse(ex.getMessage(), HttpStatus.NOT_FOUND);
     }
 
-    /**
-     * Handles data conflict scenarios (duplicate values).
-     * Indicates that resource already exists.
-     */
+
     @ExceptionHandler({
             EmailAlreadyUsed.class,
             PhoneAlreadyUsed.class,
@@ -39,10 +34,6 @@ public class GlobalExceptionHandler {
         return buildErrorResponse(ex.getMessage(), HttpStatus.CONFLICT);
     }
 
-    /**
-     * Fallback handler for unexpected runtime exceptions.
-     * Prevents internal details from leaking to clients.
-     */
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleGenericException(Exception ex) {
 
@@ -52,10 +43,7 @@ public class GlobalExceptionHandler {
         );
     }
 
-    /**
-     * Centralized method to construct uniform error responses.
-     * Ensures consistent API error structure.
-     */
+
     private ResponseEntity<ErrorResponse> buildErrorResponse(
             String message,
             HttpStatus status) {

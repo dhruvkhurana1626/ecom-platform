@@ -13,21 +13,11 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class AddressController {
 
-    /**
-     * Service layer encapsulates all business logic,
-     * validation rules and persistence operations.
-     * Controller remains a thin orchestration layer.
-     */
     private final AddressService addressService;
 
-    /**
-     * Creates a new address for a given customer ID.
-     * Any business exception (e.g., CustomerNotFound)
-     * is propagated and handled by GlobalExceptionHandler.
-     */
-    @PostMapping
+    @PostMapping("/{id}")
     public ResponseEntity addAddress(@RequestBody AddressRequest addressRequest,
-                                     @RequestParam("id") int id) {
+                                     @PathVariable int id) {
 
         AddressResponse response =
                 addressService.addAddress(addressRequest, id);
@@ -35,12 +25,8 @@ public class AddressController {
         return new ResponseEntity(response, HttpStatus.OK);
     }
 
-    /**
-     * Deletes address by ID.
-     * Service layer determines existence and throws exception if invalid.
-     */
-    @DeleteMapping
-    public ResponseEntity deleteAddress(@RequestParam("id") int id) {
+    @DeleteMapping("/{id}")
+    public ResponseEntity deleteAddress(@PathVariable int id) {
 
         addressService.deleteAddress(id);
 
@@ -50,17 +36,21 @@ public class AddressController {
         );
     }
 
-    /**
-     * Updates address details for the given ID.
-     * Validation and entity consistency are enforced at service layer.
-     */
-    @PutMapping
+    @PutMapping("/{id}")
     public ResponseEntity updateAddress(@RequestBody AddressRequest addressRequest,
-                                        @RequestParam("id") int id) {
+                                        @PathVariable int id) {
 
         AddressResponse response =
                 addressService.updateAddress(addressRequest, id);
 
         return new ResponseEntity(response, HttpStatus.OK);
+    }
+
+    @GetMapping("/{customerId}")
+    public ResponseEntity getAddressById(@PathVariable int customerId){
+        AddressResponse addressResponse =
+                addressService.getAddressById(customerId);
+
+        return ResponseEntity.ok(addressResponse);
     }
 }

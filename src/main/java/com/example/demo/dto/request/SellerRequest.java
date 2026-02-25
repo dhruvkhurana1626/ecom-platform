@@ -13,4 +13,5 @@ public class SellerRequest {
     String name;
     String email;
     String pan;
+    String password;
 }

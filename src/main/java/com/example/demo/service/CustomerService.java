@@ -51,21 +51,6 @@ public class CustomerService {
         return customerResponseList;
     }
 
-    @Transactional
-    public CustomerResponse addCustomer(CustomerRequest customerRequest) {
-        //exception
-        validation.validateNewCustomer(customerRequest);
-
-        //save
-        Customer savedCustomer = customerRepository.save(CustomerTransformer.customerRequestToCustomer(customerRequest));
-
-        //sending mail at confirmation
-        email.sendEmailAtCustomerRegistration(savedCustomer);
-
-        //reposonse
-        return CustomerTransformer.customerToCustomerResponse(savedCustomer);
-    }
-
     public CustomerResponse getCustomerById(int customerId) {
         //Checking if Customer with Id Exists - Exception also thrown via Validation Checker
         Customer customer = validation.checkIfCustomerExist(customerId);

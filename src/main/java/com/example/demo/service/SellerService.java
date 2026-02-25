@@ -17,17 +17,4 @@ public class SellerService {
     private final SellerRepository sellerRepository;
     private final Validation validation;
 
-    public SellerResponse addSeller(SellerRequest sellerRequest) {
-
-        // Validate seller details (email, phone, etc.)
-        validation.validateNewSeller(sellerRequest);
-
-        // Convert request DTO to Seller entity and persist
-        Seller savedSeller = sellerRepository
-                .save(SellerTransformer.sellerRequestToSeller(sellerRequest));
-
-        // Convert saved entity to response DTO
-        return SellerTransformer.sellerToSellerResponse(savedSeller);
-    }
-
 }

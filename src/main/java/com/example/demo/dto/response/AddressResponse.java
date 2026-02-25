@@ -13,4 +13,5 @@ public class AddressResponse {
     private String city;
     private String state;
     private int pinCode;
+    private CustomerResponse customerResponse;
 }

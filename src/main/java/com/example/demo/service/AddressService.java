@@ -3,12 +3,15 @@ package com.example.demo.service;
 import com.example.demo.Utility.Validation;
 import com.example.demo.dto.request.AddressRequest;
 import com.example.demo.dto.response.AddressResponse;
+import com.example.demo.dto.response.CustomerResponse;
 import com.example.demo.exception.AddressNotFound;
+import com.example.demo.exception.CustomerNotFound;
 import com.example.demo.model.Address;
 import com.example.demo.model.Customer;
 import com.example.demo.repository.AddressRepository;
 import com.example.demo.repository.CustomerRepository;
 import com.example.demo.transformers.AddressTransformer;
+import com.example.demo.transformers.CustomerTransformer;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -22,21 +25,13 @@ public class AddressService {
     private final Validation validation;
 
     public AddressResponse addAddress(AddressRequest addressRequest, int customerId) {
-
-        // Validate if customer exists
         Customer customer = validation.checkIfCustomerExist(customerId);
-
-        // Convert request DTO to Address entity
         Address address = AddressTransformer.addressRequestToAddress(addressRequest);
-
-        // Map address to customer (one-to-one relationship)
         customer.setAddress(address);
-
-        // Persist customer along with address
-        customerRepository.save(customer);
-
-        // Return response DTO
-        return AddressTransformer.addressToAddressResponse(address);
+        Customer savedCustomer = customerRepository.save(customer);
+        AddressResponse addressResponse = AddressTransformer.addressToAddressResponse(address);
+        addressResponse.setCustomerResponse(CustomerTransformer.customerToCustomerResponse(savedCustomer));
+        return addressResponse;
     }
 
     @Transactional
@@ -82,5 +77,16 @@ public class AddressService {
 
         // Address is automatically updated due to transactional context
         return AddressTransformer.addressToAddressResponse(address);
+    }
+
+    public AddressResponse getAddressById(int customerId) {
+
+        Customer customer = validation.checkIfCustomerExist(customerId);
+        Address address = customer.getAddress();
+        CustomerResponse customerResponse = CustomerTransformer.customerToCustomerResponse(customer);
+        AddressResponse addressResponse = AddressTransformer.addressToAddressResponse(address);
+        addressResponse.setCustomerResponse(customerResponse);
+
+        return addressResponse;
     }
 }

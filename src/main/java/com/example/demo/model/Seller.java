@@ -1,5 +1,6 @@
 package com.example.demo.model;
 
+import com.example.demo.enums.Role;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -25,6 +26,15 @@ public class Seller {
 
     @Column(unique = true,nullable = false)
     private String email;
+
+    @Column
+    private String password;
+
+    @Enumerated(EnumType.STRING)
+    private Role role;
+
+    @Column
+    private boolean enabled;
 
     @Column(unique = true,nullable = false)
     private String pan;

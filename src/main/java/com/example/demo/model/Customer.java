@@ -1,5 +1,6 @@
 package com.example.demo.model;
 import com.example.demo.enums.Gender;
+import com.example.demo.enums.Role;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
@@ -29,6 +30,15 @@ public class Customer {
 
     @Column(unique = true,nullable = false)
     private String email;
+
+    @Column
+    private String password;
+
+    @Enumerated(EnumType.STRING)
+    private Role role;
+
+    @Column
+    private boolean enabled;
 
     @Column
     @Enumerated(value = EnumType.STRING)
