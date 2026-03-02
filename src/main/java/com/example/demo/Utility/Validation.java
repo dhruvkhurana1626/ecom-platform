@@ -30,7 +30,12 @@ public class Validation {
         // Ensure customer exists before proceeding
         return customerRepository.findById(customerId)
                 .orElseThrow(() ->
-                        new CustomerNotFound("Customer not found with id: " + customerId));
+                        new ResourceNotFoundException("Customer not found with id: " + customerId));
+    }
+
+    public Customer checkIfCustomerExistByEmail_ReturnCustomer(String email){
+        return customerRepository.findByEmail(email).orElseThrow(()->
+                new ResourceNotFoundException("Customer Not found"));
     }
 
     public Seller checkIfSellerExist(int sellerId) {
@@ -38,7 +43,7 @@ public class Validation {
         // Ensure seller exists before proceeding
         return sellerRepository.findById(sellerId)
                 .orElseThrow(() ->
-                        new SellerNotFound("Seller not found with id: " + sellerId));
+                        new ResourceNotFoundException("Seller not found with id: " + sellerId));
     }
 
     public Product checkIfProductExist(int productId) {
@@ -46,7 +51,7 @@ public class Validation {
         // Ensure product exists before proceeding
         return productRepository.findById(productId)
                 .orElseThrow(() ->
-                        new ProductNotFound("Product not found with id: " + productId));
+                        new ResourceNotFoundException("Product not found with id: " + productId));
     }
 
     public boolean checkIfEmailExist(String email){
@@ -67,12 +72,12 @@ public class Validation {
 
         // Prevent duplicate customer email
         if (customerRepository.existsByEmail(request.getEmail())) {
-            throw new EmailAlreadyUsed("Email already in use");
+            throw new ConflictException("Email already in use");
         }
 
         // Prevent duplicate customer phone number
         if (customerRepository.existsByPhonenumber(request.getPhonenumber())) {
-            throw new PhoneAlreadyUsed("Phone number already in use");
+            throw new ConflictException("Phone number already in use");
         }
     }
 
@@ -80,12 +85,12 @@ public class Validation {
 
         // Prevent duplicate seller email
         if (sellerRepository.existsByEmail(sellerRequest.getEmail())) {
-            throw new EmailAlreadyUsed("Email already in use");
+            throw new ConflictException("Email already in use");
         }
 
         // Prevent duplicate PAN number
         if (sellerRepository.existsByPan(sellerRequest.getPan())) {
-            throw new PanAlreadyUsed("PAN already in use");
+            throw new ConflictException("PAN already in use");
         }
     }
 
@@ -95,7 +100,7 @@ public class Validation {
 
         // Order must contain at least one product
         if (orderItemRequestList == null || orderItemRequestList.isEmpty()) {
-            throw new IllegalArgumentException("Order must contain at least one item");
+            throw new InvalidRequestException("Order must contain at least one item");
         }
     }
 

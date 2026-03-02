@@ -25,6 +25,9 @@ public class Product {
     @Column
     private int price;
 
+    @Column
+    private int quantity;
+
     @Enumerated(value = EnumType.STRING)
     Category category;
 

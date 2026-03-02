@@ -5,26 +5,16 @@ import com.example.demo.Utility.Validation;
 import com.example.demo.dto.request.CustomerRequest;
 import com.example.demo.dto.response.CustomerResponse;
 import com.example.demo.enums.Gender;
-import com.example.demo.exception.CustomerNotFound;
-import com.example.demo.exception.EmailAlreadyUsed;
-import com.example.demo.exception.PhoneAlreadyUsed;
+import com.example.demo.exception.ConflictException;
 import com.example.demo.model.Customer;
 import com.example.demo.repository.CustomerRepository;
 import com.example.demo.transformers.CustomerTransformer;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
-import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
@@ -83,7 +73,7 @@ public class CustomerService {
                 !customerRequest.getEmail().equals(customer.getEmail())) {
 
             if (validation.checkIfEmailExist(customerRequest.getEmail())) {
-                throw new EmailAlreadyUsed("Email already used");
+                throw new ConflictException("Email already used");
             }
             customer.setEmail(customerRequest.getEmail());
         }
@@ -93,7 +83,7 @@ public class CustomerService {
                 !customerRequest.getPhonenumber().equals(customer.getPhonenumber())) {
 
             if (validation.checkIfPhoneNumberExist(customerRequest.getPhonenumber())) {
-                throw new PhoneAlreadyUsed("Phone number already used");
+                throw new ConflictException("Phone number already used");
             }
             customer.setPhonenumber(customerRequest.getPhonenumber());
         }

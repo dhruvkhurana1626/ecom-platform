@@ -7,7 +7,6 @@ import com.example.demo.dto.request.SellerRequest;
 import com.example.demo.dto.response.CustomerResponse;
 import com.example.demo.dto.response.SellerResponse;
 import com.example.demo.enums.Role;
-import com.example.demo.exception.EmailNotFound;
 import com.example.demo.model.Customer;
 import com.example.demo.model.Seller;
 import com.example.demo.repository.CustomerRepository;
@@ -17,6 +16,10 @@ import com.example.demo.transformers.SellerTransformer;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -58,19 +61,20 @@ public class AuthService {
 
     }
 
-    public String login(LoginRequest loginRequest) {
+    private final AuthenticationManager authenticationManager;
 
-        Customer customer = customerRepository
-                .findByEmail(loginRequest.getEmail())
-                .orElseThrow(() ->
-                        new EmailNotFound("Invalid Email"));
+    public String login(LoginRequest request) {
 
-        if (!passwordEncoder.matches(
-                loginRequest.getPassword(),
-                customer.getPassword())) {
+        Authentication authentication =
+                authenticationManager.authenticate(
+                        new UsernamePasswordAuthenticationToken(
+                                request.getEmail(),
+                                request.getPassword()
+                        )
+                );
 
-            throw new RuntimeException("Invalid Password");
-        }
+        SecurityContextHolder.getContext()
+                .setAuthentication(authentication);
 
         return "Login successful";
     }

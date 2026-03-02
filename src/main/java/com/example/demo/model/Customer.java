@@ -1,4 +1,5 @@
 package com.example.demo.model;
+import com.example.demo.configuration.AppUser;
 import com.example.demo.enums.Gender;
 import com.example.demo.enums.Role;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -16,7 +17,7 @@ import java.util.List;
 @Setter
 @Entity
 @Builder
-public class Customer {
+public class Customer implements AppUser {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -36,9 +37,6 @@ public class Customer {
 
     @Enumerated(EnumType.STRING)
     private Role role;
-
-    @Column
-    private boolean enabled;
 
     @Column
     @Enumerated(value = EnumType.STRING)

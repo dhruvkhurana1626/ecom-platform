@@ -12,7 +12,8 @@ import lombok.Setter;
 @Setter
 
 public class ProductRequest {
-    String name;
-    int price;
-    Category category;
+    private String name;
+    private int price;
+    private int quantity;
+    private Category category;
 }

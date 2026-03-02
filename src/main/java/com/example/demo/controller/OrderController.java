@@ -15,24 +15,8 @@ import java.util.List;
 @RequiredArgsConstructor
 public class OrderController {
 
-    /**
-     * OrderService encapsulates order creation logic,
-     * inventory validation, and customer verification.
-     * Controller remains responsible only for request handling.
-     */
     private final OrderService orderService;
 
-    /**
-     * Places an order for a given customer.
-     *
-     * - Validates customer existence
-     * - Validates order items
-     * - Persists order and related entities
-     *
-     * Any domain exception (e.g., CustomerNotFound,
-     * IllegalArgumentException) is handled globally
-     * via @RestControllerAdvice.
-     */
     @PostMapping
     public ResponseEntity placeOrder(@RequestParam int customerId,
                                      @RequestBody List<OrderItemRequest> orderItemRequestList) {
@@ -41,5 +25,20 @@ public class OrderController {
                 orderService.placeOrder(customerId, orderItemRequestList);
 
         return new ResponseEntity(orderEntityResponse, HttpStatus.CREATED);
+    }
+
+    @PostMapping("/confirmpayment")
+    public ResponseEntity updateOrderAfterPayment(@RequestParam ("orderId") int orderId,
+                                                  @RequestParam ("success") boolean success){
+
+        orderService.updateOrderAfterPayment(orderId,success);
+        return new ResponseEntity(HttpStatus.OK);
+    }
+
+    @PostMapping("/cancel")
+    public ResponseEntity cancelOrder(@RequestParam ("orderId") int orderId) {
+
+        orderService.cancelOrder(orderId);
+        return ResponseEntity.ok("Order cancelled");
     }
 }

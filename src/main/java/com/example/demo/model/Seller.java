@@ -1,5 +1,6 @@
 package com.example.demo.model;
 
+import com.example.demo.configuration.AppUser;
 import com.example.demo.enums.Role;
 import jakarta.persistence.*;
 import lombok.*;
@@ -15,7 +16,7 @@ import java.util.List;
 @Entity
 @Builder
 
-public class Seller {
+public class Seller implements AppUser {
 
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
@@ -32,9 +33,6 @@ public class Seller {
 
     @Enumerated(EnumType.STRING)
     private Role role;
-
-    @Column
-    private boolean enabled;
 
     @Column(unique = true,nullable = false)
     private String pan;

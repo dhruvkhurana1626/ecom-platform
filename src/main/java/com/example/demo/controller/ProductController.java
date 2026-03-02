@@ -7,6 +7,8 @@ import com.example.demo.service.ProductService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -16,22 +18,9 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ProductController {
 
-    /**
-     * ProductService handles business validation,
-     * seller verification, and persistence logic.
-     * Controller remains a thin request delegator.
-     */
+
     private final ProductService productService;
 
-    /**
-     * Creates a new product for a given seller ID.
-     *
-     * - Validates seller existence
-     * - Persists product entity
-     *
-     * Any domain exception (e.g., SellerNotFound)
-     * is handled globally via @RestControllerAdvice.
-     */
     @PostMapping
     public ResponseEntity addProduct(@RequestBody ProductRequest productRequest,
                                      @RequestParam("Seller_id") int id) {
@@ -42,10 +31,6 @@ public class ProductController {
         return new ResponseEntity(productResponse, HttpStatus.CREATED);
     }
 
-    /**
-     * Retrieves products filtered by category.
-     * Business filtering logic resides in service layer.
-     */
     @GetMapping
     public ResponseEntity getProductByCategory(@RequestParam Category category) {
 

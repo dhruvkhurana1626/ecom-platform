@@ -1,12 +1,10 @@
 package com.example.demo.enums;
 
 public enum OrderStatus {
-
-    PROCESSING,
+    PENDING_PAYMENT,
     CONFIRMED,
-    DISPATCHED,
-    ON_THE_WAY,
-    DELEIVERED,
+    FAILED,
     CANCELLED,
-    RETURNED
+    REFUND_INITIATED,
+    REFUNDED
 }

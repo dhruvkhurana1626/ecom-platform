@@ -4,8 +4,8 @@ import com.example.demo.Utility.Validation;
 import com.example.demo.dto.request.AddressRequest;
 import com.example.demo.dto.response.AddressResponse;
 import com.example.demo.dto.response.CustomerResponse;
-import com.example.demo.exception.AddressNotFound;
-import com.example.demo.exception.CustomerNotFound;
+import com.example.demo.exception.InvalidRequestException;
+import com.example.demo.exception.ResourceNotFoundException;
 import com.example.demo.model.Address;
 import com.example.demo.model.Customer;
 import com.example.demo.repository.AddressRepository;
@@ -45,7 +45,7 @@ public class AddressService {
 
         // If no address exists, deletion is not possible
         if (address == null) {
-            throw new AddressNotFound("Please add an address before attempting to delete.");
+            throw new InvalidRequestException("Please add an address before attempting to delete.");
         }
 
         // Remove address mapping
@@ -66,7 +66,7 @@ public class AddressService {
 
         // If address does not exist, update is not allowed
         if (address == null) {
-            throw new AddressNotFound("No address found to update.");
+            throw new ResourceNotFoundException("No address found to update.");
         }
 
         // Update address fields

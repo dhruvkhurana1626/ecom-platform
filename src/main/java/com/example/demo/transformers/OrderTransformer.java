@@ -4,7 +4,6 @@ import com.example.demo.dto.response.OrderEntityResponse;
 import com.example.demo.dto.response.OrderItemsResponse;
 import com.example.demo.model.OrderEntity;
 import com.example.demo.model.OrderItems;
-import com.example.demo.model.Product;
 
 import java.util.ArrayList;
 import java.util.List;

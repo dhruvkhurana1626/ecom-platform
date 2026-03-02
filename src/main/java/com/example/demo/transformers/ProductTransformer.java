@@ -16,6 +16,7 @@ public class ProductTransformer {
                 .name(productRequest.getName())
                 .price(productRequest.getPrice())
                 .category(productRequest.getCategory())
+                .quantity(productRequest.getQuantity())
                 .build();
 
         return product;

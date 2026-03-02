@@ -1,5 +1,7 @@
 package com.example.demo.exception;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -7,41 +9,37 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.time.LocalDateTime;
 
+@Getter
+@Setter
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
 
-    @ExceptionHandler({
-            AddressNotFound.class,
-            CustomerNotFound.class,
-            ProductNotFound.class,
-            SellerNotFound.class,
-            EmailNotFound.class
-    })
+    @ExceptionHandler (ResourceNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleResourceNotFound(RuntimeException ex) {
 
         return buildErrorResponse(ex.getMessage(), HttpStatus.NOT_FOUND);
     }
 
 
-    @ExceptionHandler({
-            EmailAlreadyUsed.class,
-            PhoneAlreadyUsed.class,
-            PanAlreadyUsed.class
-    })
+    @ExceptionHandler (ConflictException.class)
     public ResponseEntity<ErrorResponse> handleConflict(RuntimeException ex) {
 
         return buildErrorResponse(ex.getMessage(), HttpStatus.CONFLICT);
     }
 
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<ErrorResponse> handleGenericException(Exception ex) {
+    @ExceptionHandler (BusinessException.class)
+    public ResponseEntity<ErrorResponse> handleBusiness(Exception ex) {
 
-        return buildErrorResponse(
-                "An unexpected error occurred",
-                HttpStatus.INTERNAL_SERVER_ERROR
-        );
+        return buildErrorResponse(ex.getMessage(), HttpStatus.NOT_ACCEPTABLE);
     }
+
+    @ExceptionHandler (InvalidRequestException.class)
+    public ResponseEntity<ErrorResponse> handleInvalidRequest(Exception ex) {
+
+        return buildErrorResponse(ex.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+
 
 
     private ResponseEntity<ErrorResponse> buildErrorResponse(
