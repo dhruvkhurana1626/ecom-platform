@@ -34,9 +34,24 @@ public class ProductController {
         return ResponseEntity.ok(productService.getProductByCategory(category));
     }
 
-    @GetMapping("{productId}")
+    @GetMapping("/{productId}")
     public ResponseEntity<ProductResponse> getProductByProductId(
             @PathVariable int productId){
-        return new ResponseEntity.ok(productService.getProductById(productId);
+        return ResponseEntity.ok(productService.getProductById(productId));
+    }
+
+    @PutMapping("/{productId}")
+    @PreAuthorize("hasRole('SELLER')")
+    public ResponseEntity<ProductResponse> updateProductByProductId(
+            @RequestBody @Valid ProductRequest productRequest,
+            @PathVariable int productId){
+        return ResponseEntity.ok(productService.updateProductByProductId(productRequest,productId));
+    }
+
+    @DeleteMapping("/{productId}")
+    @PreAuthorize("hasRole('SELLER')")
+    public ResponseEntity deleteProductById(int productId){
+        productService.deleteProductById(productId);
+        return ResponseEntity.ok().build();
     }
 }

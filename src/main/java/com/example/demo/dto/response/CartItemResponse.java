@@ -2,15 +2,18 @@ package com.example.demo.dto.response;
 
 import lombok.*;
 
-@NoArgsConstructor
-@AllArgsConstructor
+import java.math.BigDecimal;
+
+@Builder
 @Getter
 @Setter
-@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class CartItemResponse {
+
     private Integer productId;
     private String productName;
-    private Integer price;
+    private BigDecimal price;
     private Integer quantity;
-    private Integer subTotal;
+    private BigDecimal subTotal;
 }

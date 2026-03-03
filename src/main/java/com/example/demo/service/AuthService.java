@@ -1,5 +1,6 @@
 package com.example.demo.service;
 
+import com.example.demo.Utility.Email;
 import com.example.demo.Utility.Validation;
 import com.example.demo.configuration.AppUser;
 import com.example.demo.configuration.LoginRequest;
@@ -18,6 +19,7 @@ import com.example.demo.transformers.SellerTransformer;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -35,6 +37,7 @@ public class AuthService {
     private final SellerRepository sellerRepository;
     private final CustomerRepository customerRepository;
     private final Validation validation;
+    private final Email email;
 
     @Transactional
     public CustomerResponse registerCustomer(CustomerRequest request) {
@@ -45,7 +48,7 @@ public class AuthService {
         customer.setPassword(passwordEncoder.encode(request.getPassword()));
 
         Customer savedCustomer = customerRepository.save(customer);
-
+        email.sendEmailAtCustomerRegistration(customer);
         return CustomerTransformer.customerToCustomerResponse(savedCustomer);
     }
 

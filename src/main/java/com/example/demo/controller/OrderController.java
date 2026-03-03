@@ -1,44 +1,38 @@
 package com.example.demo.controller;
 
-import com.example.demo.dto.request.OrderItemRequest;
+import com.example.demo.dto.request.OrderEntityRequest;
 import com.example.demo.dto.response.OrderEntityResponse;
 import com.example.demo.service.OrderService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 @RestController
-@RequestMapping("api/v1/order")
+@RequestMapping("api/v1/orders")
 @RequiredArgsConstructor
 public class OrderController {
 
     private final OrderService orderService;
 
+    // Place order from cart
     @PostMapping
-    public ResponseEntity placeOrder(@RequestParam int customerId,
-                                     @RequestBody List<OrderItemRequest> orderItemRequestList) {
+    public ResponseEntity<OrderEntityResponse> placeOrder(
+            @RequestBody @Valid OrderEntityRequest request) {
 
-        OrderEntityResponse orderEntityResponse =
-                orderService.placeOrder(customerId, orderItemRequestList);
-
-        return new ResponseEntity(orderEntityResponse, HttpStatus.CREATED);
+        return new ResponseEntity<>(
+                orderService.placeOrder(request),
+                HttpStatus.CREATED
+        );
     }
 
-    @PostMapping("/confirmpayment")
-    public ResponseEntity updateOrderAfterPayment(@RequestParam ("orderId") int orderId,
-                                                  @RequestParam ("success") boolean success){
-
-        orderService.updateOrderAfterPayment(orderId,success);
-        return new ResponseEntity(HttpStatus.OK);
-    }
-
-    @PostMapping("/cancel")
-    public ResponseEntity cancelOrder(@RequestParam ("orderId") int orderId) {
+    // Cancel order
+    @DeleteMapping("/{orderId}")
+    public ResponseEntity<Void> cancelOrder(
+            @PathVariable Integer orderId) {
 
         orderService.cancelOrder(orderId);
-        return ResponseEntity.ok("Order cancelled");
+        return ResponseEntity.noContent().build();
     }
 }

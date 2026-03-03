@@ -1,23 +1,22 @@
 package com.example.demo.dto.response;
 
 import com.example.demo.enums.OrderStatus;
+import com.example.demo.enums.PaymentStatus;
 import lombok.*;
 
-import java.time.LocalDateTime;
-import java.util.Date;
+import java.math.BigDecimal;
 import java.util.List;
 
-@NoArgsConstructor
-@AllArgsConstructor
+@Builder
 @Getter
 @Setter
-@Builder
-
+@NoArgsConstructor
+@AllArgsConstructor
 public class OrderEntityResponse {
-    private CustomerResponse customerResponse;
-    private int id;
-    private int totalCost;
+
+    private Integer orderId;
+    private List<OrderItemsResponse> items;
+    private BigDecimal totalAmount;
+    private PaymentStatus paymentStatus;
     private OrderStatus orderStatus;
-    private LocalDateTime createdAt;
-    private List<OrderItemsResponse> orderItemsResponse;
 }

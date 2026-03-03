@@ -4,6 +4,7 @@ import com.example.demo.Utility.Validation;
 import com.example.demo.dto.request.ProductRequest;
 import com.example.demo.dto.response.ProductResponse;
 import com.example.demo.enums.Category;
+import com.example.demo.exception.InvalidRequestException;
 import com.example.demo.model.Product;
 import com.example.demo.model.Seller;
 import com.example.demo.repository.ProductRepository;
@@ -46,5 +47,52 @@ import java.util.List;
                 .stream()
                 .map(ProductTransformer::productToProductResponse)
                 .toList();
+    }
+
+    public ProductResponse getProductById(int productId) {
+
+        //Fetch product by Id
+        Product product = validation.checkProductByProductId_ReturnProduct(productId);
+        return ProductTransformer.productToProductResponse(product);
+    }
+
+    public ProductResponse updateProductByProductId(ProductRequest productRequest,int productId) {
+
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String email = auth.getName();
+        Seller seller = validation.checkSellerByEmail_ReturnSeller(email);
+
+        Product product = validation.checkProductByProductId_ReturnProduct(productId);
+
+        if(!product.getSeller().getId().equals(seller.getId())){
+            throw new InvalidRequestException("You don't have authority to perform this action");
+        }
+
+        if(productRequest.getName()!=null)
+            product.setName(productRequest.getName());
+        if(productRequest.getPrice()!=null)
+            product.setPrice(productRequest.getPrice());
+        if(productRequest.getStock()!=null)
+            product.setStock(productRequest.getStock());
+        if(productRequest.getCategory()!=null)
+            product.setCategory(productRequest.getCategory());
+
+        return ProductTransformer
+                .productToProductResponse(productRepository
+                        .save(product));
+    }
+
+    public void deleteProductById(int productId) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String email = auth.getName();
+        Seller seller = validation.checkSellerByEmail_ReturnSeller(email);
+
+        Product product = validation.checkProductByProductId_ReturnProduct(productId);
+
+        if(!product.getSeller().getEmail().equals(email)){
+            throw new InvalidRequestException("Sorry you don't have the authority to perform this action");
+        }
+
+        productRepository.delete(product);
     }
 }

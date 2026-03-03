@@ -3,6 +3,8 @@ package com.example.demo.dto.response;
 import com.example.demo.model.Product;
 import lombok.*;
 
+import java.math.BigDecimal;
+
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
@@ -14,5 +16,5 @@ public class ReviewResponse {
     private String comment;
     private int rating;
     private String productName;
-    private int productPrice;
+    private BigDecimal productPrice;
 }

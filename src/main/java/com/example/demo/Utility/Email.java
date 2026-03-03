@@ -36,53 +36,53 @@ public class Email {
         javaMailSender.send(message);
     }
 
-    public void sendEmailAfterOrderPlaced(OrderEntityResponse orderEntityResponse) {
-
-        SimpleMailMessage message = new SimpleMailMessage();
-        message.setFrom("dhruvjavadev162@gmail.com");
-        message.setTo(orderEntityResponse.getCustomerResponse().getEmail());
-        message.setSubject("Order Confirmed | Order ID: " + orderEntityResponse.getId());
-
-        StringBuilder body = new StringBuilder();
-
-        body.append("Hello ")
-                .append(orderEntityResponse.getCustomerResponse().getName())
-                .append(",\n\n");
-
-        body.append("Thank you for placing your order with us. ")
-                .append("Your order has been successfully placed and is currently in ")
-                .append(orderEntityResponse.getOrderStatus())
-                .append(" status.\n\n");
-
-        body.append("Order Details:\n");
-        body.append("Order ID   : ").append(orderEntityResponse.getId()).append("\n");
-        body.append("Order Date : ").append(orderEntityResponse.getCreatedAt()).append("\n\n");
-
-        body.append("Items Ordered:\n");
-
-        orderEntityResponse.getOrderItemsResponse().forEach(item -> {
-            body.append("- ")
-                    .append(item.getProductResponse().getName())
-                    .append(" | Qty: ").append(item.getQuantiy())
-                    .append(" | Price: ₹").append(item.getProductResponse().getPrice()*item.getQuantiy())
-                    .append("\n");
-        });
-
-        body.append("\nTotal Amount Paid: ₹")
-                .append(orderEntityResponse.getTotalCost())
-                .append("\n\n");
-
-        body.append("If you have any questions regarding your order, ")
-                .append("feel free to contact our support team.\n\n");
-
-        body.append("We hope you enjoy your experience with us.\n\n");
-        body.append("Best Regards,\n");
-        body.append("Swiggato Team\n");
-        body.append("— Powered by Java Backend");
-
-        message.setText(body.toString());
-
-        javaMailSender.send(message);
-    }
+//    public void sendEmailAfterOrderPlaced(OrderEntityResponse orderEntityResponse) {
+//
+//        SimpleMailMessage message = new SimpleMailMessage();
+//        message.setFrom("dhruvjavadev162@gmail.com");
+//        message.setTo(orderEntityResponse.getCustomerResponse().getEmail());
+//        message.setSubject("Order Confirmed | Order ID: " + orderEntityResponse.getId());
+//
+//        StringBuilder body = new StringBuilder();
+//
+//        body.append("Hello ")
+//                .append(orderEntityResponse.getCustomerResponse().getName())
+//                .append(",\n\n");
+//
+//        body.append("Thank you for placing your order with us. ")
+//                .append("Your order has been successfully placed and is currently in ")
+//                .append(orderEntityResponse.getOrderStatus())
+//                .append(" status.\n\n");
+//
+//        body.append("Order Details:\n");
+//        body.append("Order ID   : ").append(orderEntityResponse.getId()).append("\n");
+//        body.append("Order Date : ").append(orderEntityResponse.getCreatedAt()).append("\n\n");
+//
+//        body.append("Items Ordered:\n");
+//
+//        orderEntityResponse.getOrderItemsResponse().forEach(item -> {
+//            body.append("- ")
+//                    .append(item.getProductResponse().getName())
+//                    .append(" | Qty: ").append(item.getQuantiy())
+//                    .append(" | Price: ₹").append(item.getProductResponse().getPrice()*item.getQuantiy())
+//                    .append("\n");
+//        });
+//
+//        body.append("\nTotal Amount Paid: ₹")
+//                .append(orderEntityResponse.getTotalCost())
+//                .append("\n\n");
+//
+//        body.append("If you have any questions regarding your order, ")
+//                .append("feel free to contact our support team.\n\n");
+//
+//        body.append("We hope you enjoy your experience with us.\n\n");
+//        body.append("Best Regards,\n");
+//        body.append("Swiggato Team\n");
+//        body.append("— Powered by Java Backend");
+//
+//        message.setText(body.toString());
+//
+//        javaMailSender.send(message);
+//    }
 
 }

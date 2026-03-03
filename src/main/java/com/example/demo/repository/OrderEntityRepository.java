@@ -8,12 +8,19 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public interface OrderEntityRepository extends JpaRepository<OrderEntity,Integer> {
     boolean existsByCustomerAndOrderStatus(Customer customer, OrderStatus orderStatus);
 
-    List<OrderEntity> findByOrderStatus(OrderStatus orderStatus);
+    @Query("""
+       SELECT o FROM OrderEntity o
+       WHERE o.orderStatus = 'PENDING_PAYMENT'
+       AND o.createdAt <= :expiryTime
+       """)
+    List<OrderEntity> findExpiredOrders(
+            @Param("expiryTime") LocalDateTime expiryTime);
 
     @Modifying
     @Query("""
@@ -23,4 +30,5 @@ public interface OrderEntityRepository extends JpaRepository<OrderEntity,Integer
 """)
     void updateOrderStatus(@Param("orderId") int orderId,
                           @Param("status") OrderStatus status);
+
 }

@@ -34,57 +34,53 @@ public class CartService {
     private final ProductRepository productRepository;
     private final Validation validation;
 
-    public void addToCart(AddToCartRequest addToCartRequest) {
+    @Transactional
+    public CartResponse addToCart(AddToCartRequest request) {
 
-        //Get logged in Customer
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String email = authentication.getName();
+        Customer customer = validation.checkCustomerByEmail_ReturnCustomer(email);
 
-        //Validation
-        Customer customer = validation.checkIfCustomerExistByEmail_ReturnCustomer(email);
-        Product product = validation.checkIfProductExist(addToCartRequest.getProductId());
+        Product product = validation.checkProductByProductId_ReturnProduct(request.getProductId());
 
-        if(addToCartRequest.getQuantity()<=0){
-            throw new InvalidRequestException("Quantity should be greater than 0");
+        if (request.getQuantity() <= 0) {
+            throw new InvalidRequestException("Quantity must be greater than 0");
         }
 
-        //Fetching Cart
-        Cart cart = cartRepository.findById(customer.getId()).
-                orElseGet(()->{
+        Cart cart = cartRepository.findByCustomerId(customer.getId())
+                .orElseGet(() -> {
                     Cart newCart = new Cart();
                     newCart.setCustomer(customer);
-                    newCart.setCartItems(new ArrayList<>());
                     return cartRepository.save(newCart);
                 });
 
-
-        //Fetching the required Quantity
-        int finalQuantity = addToCartRequest.getQuantity();
-
-        //Checking if item available in cart
-        CartItem cartItem = cart.getCartItems()
+        CartItem existingItem = cart.getCartItems()
                 .stream()
-                .filter(item -> item.getProduct().getId().equals(addToCartRequest.getProductId()))
+                .filter(item -> item.getProduct().getId().equals(product.getId()))
                 .findFirst()
                 .orElse(null);
 
-        if(cartItem!=null)finalQuantity += cartItem.getQuantity();
-        if(finalQuantity > product.getQuantity()){
-            throw new InvalidRequestException("Out of Stock , Only " + product.getQuantity() +" available");
+        int finalQuantity = request.getQuantity();
+
+        if (existingItem != null) {
+            finalQuantity += existingItem.getQuantity();
         }
 
-        if(cartItem!=null){
-            cartItem.setQuantity(finalQuantity);
-        }
-        else{
-            CartItem newCartItem = new CartItem();
-            newCartItem.setProduct(product);
-            newCartItem.setQuantity(finalQuantity);
-            newCartItem.setCart(cart);
-            cart.getCartItems().add(newCartItem);
+        if (finalQuantity > product.getStock()) {
+            throw new InvalidRequestException("Out of stock. Only " + product.getStock() + " available");
         }
 
-        cartRepository.save(cart);
+        if (existingItem != null) {
+            existingItem.setQuantity(finalQuantity);
+        } else {
+            CartItem newItem = new CartItem();
+            newItem.setProduct(product);
+            newItem.setQuantity(finalQuantity);
+            newItem.setCart(cart);
+            cart.getCartItems().add(newItem);
+        }
+
+        return CartTransformer.cartToCartResponse(cart);
     }
 
     @Transactional
@@ -93,9 +89,43 @@ public class CartService {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String email = auth.getName();
 
-        Customer customer = validation.checkIfCustomerExistByEmail_ReturnCustomer(email);
-        Cart cart = cartRepository.findByCustomerId(customer.getId());
+        Customer customer = validation.checkCustomerByEmail_ReturnCustomer(email);
+        Cart cart = validation.checkCartByCustomerId_ReturnCart(customer.getId());
 
         return CartTransformer.cartToCartResponse(cart);
+    }
+
+    @Transactional
+    public CartResponse removeItem(Integer productId) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String email = auth.getName();
+
+        Customer customer = validation.checkCustomerByEmail_ReturnCustomer(email);
+        Cart cart = validation.checkCartByCustomerId_ReturnCart(customer.getId());
+
+        if(cart==null){
+            throw new InvalidRequestException("Cart Already Empty");
+        }
+
+        boolean removed = cart.getCartItems().removeIf(item -> item.getProduct().getId().equals(productId));
+
+        if (!removed) {throw new InvalidRequestException("Product not found in cart");}
+
+        return CartTransformer.cartToCartResponse(cart);
+    }
+
+    @Transactional
+    public void clearCart() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String email = auth.getName();
+
+        Customer customer = validation.checkCustomerByEmail_ReturnCustomer(email);
+        Cart cart = validation.checkCartByCustomerId_ReturnCart(customer.getId());
+
+        if (cart == null || cart.getCartItems().isEmpty()) {
+            return; // already empty
+        }
+
+        cart.getCartItems().clear();
     }
 }

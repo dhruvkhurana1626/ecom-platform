@@ -1,21 +1,13 @@
 package com.example.demo.Utility;
 
 import com.example.demo.dto.request.CustomerRequest;
-import com.example.demo.dto.request.OrderItemRequest;
 import com.example.demo.dto.request.SellerRequest;
-import com.example.demo.exception.*;
-import com.example.demo.model.Address;
-import com.example.demo.model.Customer;
-import com.example.demo.model.Product;
-import com.example.demo.model.Seller;
-import com.example.demo.repository.AddressRepository;
-import com.example.demo.repository.CustomerRepository;
-import com.example.demo.repository.ProductRepository;
-import com.example.demo.repository.SellerRepository;
+import com.example.demo.exception.InvalidRequestException;
+import com.example.demo.exception.ResourceNotFoundException;
+import com.example.demo.model.*;
+import com.example.demo.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -25,6 +17,8 @@ public class Validation {
     private final SellerRepository sellerRepository;
     private final ProductRepository productRepository;
     private final AddressRepository addressRepository;
+    private final CartRepository cartRepository;
+    private final OrderEntityRepository orderEntityRepository;
 
     public Customer checkCustomerByEmail_ReturnCustomer(String email){
         return customerRepository.findByEmail(email)
@@ -83,5 +77,30 @@ public class Validation {
     public void checkProductExistById(Integer productId) {
         productRepository.findById(productId)
                 .orElseThrow(()-> new ResourceNotFoundException("Product Not Found"));
+    }
+
+    public Cart checkCartByCustomerId_ReturnCart(Integer customerId) {
+        Customer customer = customerRepository.findById(customerId).orElseThrow(
+                ()-> new ResourceNotFoundException("Cart Already Empty"));
+
+        return cartRepository.findById(customer.getCart().getId())
+                .orElse(null);
+    }
+
+    public Address checkAddressOwnership(Integer addressId,Customer customer) {
+
+        Address address = addressRepository.findById(addressId)
+                .orElseThrow(() -> new ResourceNotFoundException("Address not found"));
+
+        if (!address.getCustomer().getId().equals(customer.getId())) {
+            throw new InvalidRequestException("You cannot use this address");
+        }
+
+        return address;
+    }
+
+    public OrderEntity checkOrderByOrderId_ReturnOrder(Integer orderId) {
+        return orderEntityRepository.findById(orderId)
+                .orElseThrow(()-> new ResourceNotFoundException("Order Not Found"));
     }
 }

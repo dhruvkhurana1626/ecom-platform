@@ -1,6 +1,7 @@
 package com.example.demo.Utility;
 
 import com.example.demo.enums.OrderStatus;
+import com.example.demo.enums.PaymentStatus;
 import com.example.demo.model.OrderEntity;
 import com.example.demo.model.OrderItems;
 import com.example.demo.model.Product;
@@ -23,30 +24,26 @@ public class OrderCleanupService {
     private final ProductRepository productRepository;
 
     @Transactional
-    @Scheduled(fixedRate = 6000) // runs every 1 minute
+    @Scheduled(fixedRate = 60000)
     public void releaseExpiredOrders() {
 
-        List<OrderEntity> pendingOrders =
-                orderEntityRepository.findByOrderStatus(OrderStatus.PENDING_PAYMENT);
+        LocalDateTime expiryTime =
+                LocalDateTime.now().minusMinutes(10);
 
-        LocalDateTime now = LocalDateTime.now();
+        List<OrderEntity> expiredOrders =
+                orderEntityRepository.findExpiredOrders(expiryTime);
 
-        for (OrderEntity order : pendingOrders) {
+        for (OrderEntity order : expiredOrders) {
 
-            long minutes =
-                    Duration.between(order.getCreatedAt(), now).toMinutes();
+            order.setOrderStatus(OrderStatus.FAILED);
+            order.setPaymentStatus(PaymentStatus.FAILED);
 
-            if (minutes >= 10) {
+            for (OrderItems item : order.getOrderItems()) {
 
-                orderEntityRepository.updateOrderStatus(order.getId(), OrderStatus.FAILED);
-
-                for (OrderItems item : order.getOrderItems()) {
-                    Product product = item.getProduct();
-                    productRepository.increaseStock(
-                            item.getProduct().getId(),
-                            item.getQuantity()
-                    );
-                }
+                productRepository.incrementStock(
+                        item.getProduct().getId(),
+                        item.getQuantity()
+                );
             }
         }
     }

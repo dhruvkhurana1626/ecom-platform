@@ -12,21 +12,24 @@ import java.util.List;
 public interface ProductRepository extends JpaRepository<Product,Integer> {
     List<Product> findByCategory(Category category);
 
-    @Modifying(clearAutomatically = true)
+    @Modifying
     @Query("""
-    UPDATE Product p
-    SET p.quantity = p.quantity - :qty
-    WHERE p.id = :id AND p.quantity >= :qty
-""")
-    int reduceStock(@Param("id") Integer id,
-                    @Param("qty") Integer qty);
+       UPDATE Product p
+       SET p.stock = p.stock - :qty
+       WHERE p.id = :productId
+       AND p.stock >= :qty
+       """)
+    int reduceStockIfAvailable(
+            @Param("productId") Integer productId,
+            @Param("qty") Integer qty);
 
-    @Modifying(clearAutomatically = true)
+    @Modifying
     @Query("""
-        UPDATE Product p
-        SET p.quantity = p.quantity + :qty
-        WHERE p.id = :id
-    """)
-    int increaseStock(@Param("id") Integer id,
-                      @Param("qty") Integer qty);
+       UPDATE Product p
+       SET p.stock = p.stock + :qty
+       WHERE p.id = :productId
+       """)
+    void incrementStock(
+            @Param("productId") Integer productId,
+            @Param("qty") Integer qty);
 }
