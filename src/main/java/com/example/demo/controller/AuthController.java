@@ -1,12 +1,15 @@
 package com.example.demo.controller;
 
 import com.example.demo.configuration.LoginRequest;
+import com.example.demo.configuration.LoginResponse;
 import com.example.demo.dto.request.CustomerRequest;
 import com.example.demo.dto.request.SellerRequest;
 import com.example.demo.dto.response.CustomerResponse;
 import com.example.demo.dto.response.SellerResponse;
 import com.example.demo.service.AuthService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -21,20 +24,28 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/register/customer")
-    public ResponseEntity registerCustomer(@RequestBody CustomerRequest customerRequest){
-        CustomerResponse customerResponse = authService.registerCustomer(customerRequest);
-        return ResponseEntity.ok(customerResponse);
+    public ResponseEntity<CustomerResponse> registerCustomer(
+            @RequestBody @Valid CustomerRequest customerRequest) {
+
+        return new ResponseEntity<>(
+                authService.registerCustomer(customerRequest),
+                HttpStatus.CREATED);
     }
 
     @PostMapping("/register/seller")
-    public ResponseEntity registerSeller(@RequestBody SellerRequest sellerRequest){
-        SellerResponse sellerResponse = authService.registerSeller(sellerRequest);
-        return ResponseEntity.ok(sellerResponse);
+    public ResponseEntity<SellerResponse> registerSeller(
+            @RequestBody @Valid SellerRequest sellerRequest) {
+
+        return new ResponseEntity<>(
+                authService.registerSeller(sellerRequest),
+                HttpStatus.CREATED);
     }
 
     @PostMapping("/login")
-    public ResponseEntity login(@RequestBody LoginRequest loginRequest){
-        String response = authService.login(loginRequest);
-        return ResponseEntity.ok(response);
+    public ResponseEntity<LoginResponse> login(
+            @RequestBody @Valid LoginRequest loginRequest) {
+
+        return ResponseEntity.ok(
+                authService.login(loginRequest));
     }
 }

@@ -11,6 +11,8 @@ import com.example.demo.repository.SellerRepository;
 import com.example.demo.transformers.ProductTransformer;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -23,23 +25,18 @@ import java.util.List;
     private final Validation validation;
 
     @Transactional
-    public ProductResponse addProduct(ProductRequest productRequest, int sellerId) {
+    public ProductResponse addProduct(ProductRequest request) {
 
-        // Validate if seller exists
-        Seller seller = validation.checkIfSellerExist(sellerId);
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String email = auth.getName();
 
-        // Convert request DTO to Product entity
-        Product product = ProductTransformer.productRequestToProduct(productRequest);
+        Seller seller = validation.checkSellerByEmail_ReturnSeller(email);
 
-        // Establish bidirectional relationship between seller and product
-        seller.getProductList().add(product);
+        Product product = ProductTransformer.productRequestToProduct(request);
         product.setSeller(seller);
+        Product savedProduct = productRepository.save(product);
 
-        // Persist seller (product will be saved via cascading if configured)
-        sellerRepository.save(seller);
-
-        // Return response DTO
-        return ProductTransformer.productToProductResponse(product);
+        return ProductTransformer.productToProductResponse(savedProduct);
     }
 
     public List<ProductResponse> getProductByCategory(Category category) {
@@ -47,7 +44,6 @@ import java.util.List;
         // Fetch products by category
         return productRepository.findByCategory(category)
                 .stream()
-                // Convert Product entity to response DTO
                 .map(ProductTransformer::productToProductResponse)
                 .toList();
     }

@@ -2,6 +2,7 @@ package com.example.demo.service;
 
 import com.example.demo.Utility.Validation;
 import com.example.demo.dto.request.AddToCartRequest;
+import com.example.demo.dto.response.CartResponse;
 import com.example.demo.exception.InvalidRequestException;
 import com.example.demo.model.Cart;
 import com.example.demo.model.CartItem;
@@ -10,6 +11,8 @@ import com.example.demo.model.Product;
 import com.example.demo.repository.CartRepository;
 import com.example.demo.repository.CustomerRepository;
 import com.example.demo.repository.ProductRepository;
+import com.example.demo.transformers.CartTransformer;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -17,6 +20,7 @@ import org.springframework.stereotype.Service;
 
 import java.net.Authenticator;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -49,6 +53,7 @@ public class CartService {
                 orElseGet(()->{
                     Cart newCart = new Cart();
                     newCart.setCustomer(customer);
+                    newCart.setCartItems(new ArrayList<>());
                     return cartRepository.save(newCart);
                 });
 
@@ -61,7 +66,7 @@ public class CartService {
                 .stream()
                 .filter(item -> item.getProduct().getId().equals(addToCartRequest.getProductId()))
                 .findFirst()
-                .orElseGet(null);
+                .orElse(null);
 
         if(cartItem!=null)finalQuantity += cartItem.getQuantity();
         if(finalQuantity > product.getQuantity()){
@@ -73,11 +78,24 @@ public class CartService {
         }
         else{
             CartItem newCartItem = new CartItem();
-            cartItem.setProduct(product);
-            cartItem.setQuantity(finalQuantity);
-            cart.getCartItems().add(cartItem);
+            newCartItem.setProduct(product);
+            newCartItem.setQuantity(finalQuantity);
+            newCartItem.setCart(cart);
+            cart.getCartItems().add(newCartItem);
         }
 
         cartRepository.save(cart);
+    }
+
+    @Transactional
+    public CartResponse getCart() {
+
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String email = auth.getName();
+
+        Customer customer = validation.checkIfCustomerExistByEmail_ReturnCustomer(email);
+        Cart cart = cartRepository.findByCustomerId(customer.getId());
+
+        return CartTransformer.cartToCartResponse(cart);
     }
 }

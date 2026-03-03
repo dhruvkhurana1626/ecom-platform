@@ -4,9 +4,11 @@ import com.example.demo.dto.request.CustomerRequest;
 import com.example.demo.dto.request.OrderItemRequest;
 import com.example.demo.dto.request.SellerRequest;
 import com.example.demo.exception.*;
+import com.example.demo.model.Address;
 import com.example.demo.model.Customer;
 import com.example.demo.model.Product;
 import com.example.demo.model.Seller;
+import com.example.demo.repository.AddressRepository;
 import com.example.demo.repository.CustomerRepository;
 import com.example.demo.repository.ProductRepository;
 import com.example.demo.repository.SellerRepository;
@@ -22,86 +24,64 @@ public class Validation {
     private final CustomerRepository customerRepository;
     private final SellerRepository sellerRepository;
     private final ProductRepository productRepository;
+    private final AddressRepository addressRepository;
 
-    // -------------------- EXISTENCE VALIDATIONS --------------------
-
-    public Customer checkIfCustomerExist(int customerId) {
-
-        // Ensure customer exists before proceeding
-        return customerRepository.findById(customerId)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("Customer not found with id: " + customerId));
+    public Customer checkCustomerByEmail_ReturnCustomer(String email){
+        return customerRepository.findByEmail(email)
+                .orElseThrow(()-> new ResourceNotFoundException("Customer Not Found"));
     }
 
-    public Customer checkIfCustomerExistByEmail_ReturnCustomer(String email){
-        return customerRepository.findByEmail(email).orElseThrow(()->
-                new ResourceNotFoundException("Customer Not found"));
+    public Address checkAddressByAddressID_ReturnAddress(int addressId){
+        return addressRepository.findById(addressId)
+                .orElseThrow(()-> new ResourceNotFoundException("Address Not Found"));
     }
-
-    public Seller checkIfSellerExist(int sellerId) {
-
-        // Ensure seller exists before proceeding
-        return sellerRepository.findById(sellerId)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("Seller not found with id: " + sellerId));
-    }
-
-    public Product checkIfProductExist(int productId) {
-
-        // Ensure product exists before proceeding
-        return productRepository.findById(productId)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("Product not found with id: " + productId));
-    }
-
-    public boolean checkIfEmailExist(String email){
-
-        //Ensure email dont exist before proceeding
-        return customerRepository.existsByEmail(email);
-    }
-
-    public boolean checkIfPhoneNumberExist(String phonenumber){
-
-        //Ensure phonenumber dont exist before proceeding
-        return customerRepository.existsByPhonenumber(phonenumber);
-    }
-
-    // -------------------- CREATE VALIDATIONS --------------------
 
     public void validateNewCustomer(CustomerRequest request) {
 
-        // Prevent duplicate customer email
         if (customerRepository.existsByEmail(request.getEmail())) {
-            throw new ConflictException("Email already in use");
+            throw new InvalidRequestException("Email already registered");
         }
 
-        // Prevent duplicate customer phone number
         if (customerRepository.existsByPhonenumber(request.getPhonenumber())) {
-            throw new ConflictException("Phone number already in use");
+            throw new InvalidRequestException("Phone number already registered");
+        }
+
+        if (request.getPassword().length() < 6) {
+            throw new InvalidRequestException("Password must be at least 6 characters");
+        }
+
+        if (request.getAge() < 18) {
+            throw new InvalidRequestException("Customer must be at least 18 years old");
         }
     }
 
-    public void validateNewSeller(SellerRequest sellerRequest) {
+    public void validateNewSeller(SellerRequest request) {
 
-        // Prevent duplicate seller email
-        if (sellerRepository.existsByEmail(sellerRequest.getEmail())) {
-            throw new ConflictException("Email already in use");
+        if (sellerRepository.existsByEmail(request.getEmail())) {
+            throw new InvalidRequestException("Email already registered");
         }
 
-        // Prevent duplicate PAN number
-        if (sellerRepository.existsByPan(sellerRequest.getPan())) {
-            throw new ConflictException("PAN already in use");
+        if (sellerRepository.existsByPan(request.getPan())) {
+            throw new InvalidRequestException("PAN already registered");
         }
-    }
 
-    // -------------------- ORDER VALIDATIONS --------------------
-
-    public void validateOrderItemsList(List<OrderItemRequest> orderItemRequestList) {
-
-        // Order must contain at least one product
-        if (orderItemRequestList == null || orderItemRequestList.isEmpty()) {
-            throw new InvalidRequestException("Order must contain at least one item");
+        if (request.getPassword().length() < 6) {
+            throw new InvalidRequestException("Password must be at least 6 characters");
         }
     }
 
+    public Seller checkSellerByEmail_ReturnSeller(String email) {
+        return sellerRepository.findByEmail(email)
+                .orElseThrow(()-> new ResourceNotFoundException("Seller Not Found"));
+    }
+
+    public Product checkProductByProductId_ReturnProduct(Integer productId) {
+        return productRepository.findById(productId)
+                .orElseThrow(()-> new ResourceNotFoundException("Product Not Found"));
+    }
+
+    public void checkProductExistById(Integer productId) {
+        productRepository.findById(productId)
+                .orElseThrow(()-> new ResourceNotFoundException("Product Not Found"));
+    }
 }

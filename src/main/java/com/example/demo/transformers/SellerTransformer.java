@@ -8,23 +8,18 @@ import java.util.ArrayList;
 
 public class SellerTransformer {
 
-    public static Seller sellerRequestToSeller(SellerRequest sellerRequest){
-        Seller seller = new Seller().builder()
-                .name(sellerRequest.getName())
-                .email(sellerRequest.getEmail())
-                .pan(sellerRequest.getPan())
-                .productList(new ArrayList<>())
+    public static Seller sellerRequestToSeller(SellerRequest request){
+        return Seller.builder()
+                .name(request.getName())
+                .email(request.getEmail())
+                .pan(request.getPan())
                 .build();
-
-        return seller;
     }
 
     public static SellerResponse sellerToSellerResponse(Seller seller){
-        SellerResponse sellerResponse = new SellerResponse().builder()
+        return SellerResponse.builder()
                 .name(seller.getName())
                 .email(seller.getEmail())
                 .build();
-
-        return sellerResponse;
     }
 }

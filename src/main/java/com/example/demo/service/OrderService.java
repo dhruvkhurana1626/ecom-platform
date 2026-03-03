@@ -53,6 +53,10 @@ public class OrderService {
         Customer customer = validation.checkIfCustomerExist(customerId);
         validation.validateOrderItemsList(orderItemRequestList);
 
+        if (customer.getAddresses() == null) {
+            throw new BusinessException("Please add a delivery address before placing order");
+        }
+
         if(orderEntityRepository.existsByCustomerAndOrderStatus(customer, PENDING_PAYMENT))
             throw new BusinessException("Complete existing payment first");
 

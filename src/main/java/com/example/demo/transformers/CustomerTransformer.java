@@ -24,7 +24,7 @@ public class CustomerTransformer {
                 .name(customer.getName())
                 .email(customer.getEmail())
                 .phonenumber(customer.getPhonenumber())
-                .date(customer.getDate())
+                .date(customer.getCreatedAt())
                 .build();
 
         return customerResponse;

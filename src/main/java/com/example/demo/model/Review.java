@@ -22,8 +22,8 @@ public class Review {
     private String comment;
 
     @Column(nullable = false)
-    @Max(1)
-    @Min(5)
+    @Max(5)
+    @Min(1)
     private int rating;
 
     @ManyToOne

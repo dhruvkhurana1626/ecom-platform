@@ -7,6 +7,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -23,16 +24,16 @@ public class Customer implements AppUser {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column
+    @Column(nullable = false)
     private String name;
 
-    @Column
+    @Column(nullable = false)
     private int age;
 
     @Column(unique = true,nullable = false)
     private String email;
 
-    @Column
+    @Column(nullable = false)
     private String password;
 
     @Enumerated(EnumType.STRING)
@@ -45,18 +46,35 @@ public class Customer implements AppUser {
     @Column(unique = true, length = 10,nullable = false)
     private String phonenumber;
 
-    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name="address_id")
-    Address address;
+    @OneToMany(mappedBy = "customer",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true,
+            fetch = FetchType.LAZY)
+    private List<Address> addresses = new ArrayList<>();
 
     @CreationTimestamp
-    Date date;
+    private LocalDateTime createdAt;
 
     @OneToMany(mappedBy = "customer")
     @JsonIgnore
     List<Review> reviewList = new ArrayList<>();
 
-    @OneToMany(mappedBy = "customer")
-    List<OrderEntity> orderEntityList = new ArrayList<>();
+    @OneToOne(mappedBy = "customer",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true,
+            fetch = FetchType.LAZY)
+    private Cart cart;
+
+
+    @OneToMany(mappedBy = "customer",
+            fetch = FetchType.LAZY)
+    private List<OrderEntity> orderEntityList = new ArrayList<>();
+
+    @PrePersist
+    public void setDefaultRole() {
+        if (role == null) {
+            role = Role.CUSTOMER;
+        }
+    }
 
 }

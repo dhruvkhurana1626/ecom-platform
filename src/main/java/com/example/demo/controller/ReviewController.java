@@ -3,6 +3,7 @@ package com.example.demo.controller;
 import com.example.demo.dto.request.ReviewRequest;
 import com.example.demo.dto.response.ReviewResponse;
 import com.example.demo.service.ReviewService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -11,7 +12,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-
 @RestController
 @RequestMapping("api/v1/review")
 @RequiredArgsConstructor
@@ -19,33 +19,51 @@ public class ReviewController {
 
     private final ReviewService reviewService;
 
-    @GetMapping
-    public ResponseEntity getReviewById(@RequestParam("id") int id) {
+    @GetMapping("/me")
+    public ResponseEntity<List<ReviewResponse>> getMyReviews() {
 
-        List<ReviewResponse> response =
-                reviewService.getReviewById(id);
-
-        return new ResponseEntity(response, HttpStatus.OK);
+        return ResponseEntity.ok(reviewService.getReviewByCustomer());
     }
 
-    @PostMapping
-    public ResponseEntity addReview(@RequestBody ReviewRequest reviewRequest,
-                                    @RequestParam("cid") int custId,
-                                    @RequestParam("pid") int prodId) {
+    @PostMapping("/products/{productId}")
+    public ResponseEntity<ReviewResponse> addReview(
+            @RequestBody @Valid ReviewRequest reviewRequest,
+            @PathVariable Integer productId) {
 
-        ReviewResponse reviewResponse =
-                reviewService.addReview(reviewRequest, custId, prodId);
-
-        return new ResponseEntity(reviewResponse, HttpStatus.CREATED);
+        return new ResponseEntity<>(
+                reviewService.addReview(reviewRequest, productId),
+                HttpStatus.CREATED);
     }
 
+    @GetMapping("/search")
+    public ResponseEntity<List<ReviewResponse>> getReviewByWord(
+            @RequestParam String word) {
 
-    @GetMapping("/review-by-word")
-    public ResponseEntity getReviewByWord(@RequestParam String word) {
+        return ResponseEntity.ok(reviewService.getReviewByWord(word));
+    }
 
-        List<ReviewResponse> reviewResponse =
-                reviewService.getReviewByWord(word);
+    @GetMapping("/search/{productId}")
+    public ResponseEntity<List<ReviewResponse>> getReviewByProductId(
+            @PathVariable Integer productId){
 
-        return new ResponseEntity(reviewResponse, HttpStatus.OK);
+        return ResponseEntity.ok(reviewService.getReviewByProductId(productId));
+    }
+
+    @DeleteMapping("/{reviewId}")
+    public ResponseEntity<Void> deleteReview(
+            @PathVariable Integer reviewId) {
+
+        reviewService.deleteReview(reviewId);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PutMapping("/{reviewId}")
+    public ResponseEntity<ReviewResponse> updateReview(
+            @PathVariable Integer reviewId,
+            @RequestBody @Valid ReviewRequest request) {
+
+        return ResponseEntity.ok(
+                reviewService.updateReview(reviewId, request)
+        );
     }
 }

@@ -4,6 +4,7 @@ import com.example.demo.enums.Category;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,18 +23,18 @@ public class Product {
     @Column
     private String name;
 
-    @Column
-    private int price;
+    @Column(nullable = false, precision = 12, scale = 2)
+    private BigDecimal price;
 
-    @Column
-    private int quantity;
+    @Column(nullable = false)
+    private Integer stock;
 
     @Enumerated(value = EnumType.STRING)
     Category category;
 
-    @ManyToOne
-    @JoinColumn(name="seller_id")
-    Seller seller;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "seller_id", nullable = false)
+    private Seller seller;
 
     @OneToMany(mappedBy = "product")
     List<Review> reviewList = new ArrayList<>();

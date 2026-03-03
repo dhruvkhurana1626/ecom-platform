@@ -35,6 +35,7 @@ public class SecurityBeans {
                         .requestMatchers(HttpMethod.GET,"/api/v1/product/**").hasRole("CUSTOMER")
                         .requestMatchers(HttpMethod.GET,"/api/v1/review/**").permitAll()
                         .requestMatchers(HttpMethod.POST,"/api/v1/review/**").hasRole("CUSTOMER")
+                        .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
                         .requestMatchers("/api/v1/customers/**").hasRole("CUSTOMER")
                         .requestMatchers("/api/v1/order/**").hasRole("CUSTOMER")
                         .requestMatchers("/api/v1/sellers/**").hasRole("SELLER")

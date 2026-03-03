@@ -13,9 +13,9 @@ import lombok.Setter;
 @Entity
 public class OrderItems {
 
-    @GeneratedValue(strategy = GenerationType.UUID)
     @Id
-    private String id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
     @ManyToOne
     @JoinColumn(name = "orderentity_id")
@@ -25,7 +25,9 @@ public class OrderItems {
     @JoinColumn(name = "product_id")
     private Product product;
 
-    private int Quantity;
-    private int price;
+    @Column(nullable = false)
+    private int quantity;
 
+    @Column(nullable = false)
+    private int price;
 }

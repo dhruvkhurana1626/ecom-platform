@@ -14,7 +14,12 @@ import com.example.demo.transformers.AddressTransformer;
 import com.example.demo.transformers.CustomerTransformer;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -24,69 +29,117 @@ public class AddressService {
     private final AddressRepository addressRepository;
     private final Validation validation;
 
-    public AddressResponse addAddress(AddressRequest addressRequest, int customerId) {
-        Customer customer = validation.checkIfCustomerExist(customerId);
+    public AddressResponse addAddress(AddressRequest addressRequest) {
+
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String email = auth.getName();
+        Customer customer = validation.checkCustomerByEmail_ReturnCustomer(email);
+
         Address address = AddressTransformer.addressRequestToAddress(addressRequest);
-        customer.setAddress(address);
-        Customer savedCustomer = customerRepository.save(customer);
-        AddressResponse addressResponse = AddressTransformer.addressToAddressResponse(address);
-        addressResponse.setCustomerResponse(CustomerTransformer.customerToCustomerResponse(savedCustomer));
-        return addressResponse;
+
+        // Important: set owning side
+        address.setCustomer(customer);
+
+        // Handle default logic
+        if (Boolean.TRUE.equals(address.getIsDefault())) {
+            customer.getAddresses()
+                    .forEach(addr -> addr.setIsDefault(false));
+        }
+
+        Address savedAddress = addressRepository.save(address);
+        return AddressTransformer.addressToAddressResponse(savedAddress);
     }
 
     @Transactional
-    public void deleteAddress(int customerId) {
+    public void deleteAddress(Integer addressId) {
 
-        // Validate customer existence
-        Customer customer = validation.checkIfCustomerExist(customerId);
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String email = auth.getName();
 
-        // Fetch existing address
-        Address address = customer.getAddress();
+        Customer customer = validation.checkCustomerByEmail_ReturnCustomer(email);
+        Address address = validation.checkAddressByAddressID_ReturnAddress(addressId);
 
-        // If no address exists, deletion is not possible
-        if (address == null) {
-            throw new InvalidRequestException("Please add an address before attempting to delete.");
+        // Ownership check (important for security)
+        if (!address.getCustomer().getId().equals(customer.getId())) {
+            throw new InvalidRequestException("You cannot delete this address");
         }
 
-        // Remove address mapping
-        customer.setAddress(null);
-
-        // Persist the change
-        customerRepository.save(customer);
+        addressRepository.delete(address);
     }
 
     @Transactional
-    public AddressResponse updateAddress(AddressRequest addressRequest, int customerId) {
+    public AddressResponse updateAddress(Integer addressId,
+                                         AddressRequest addressRequest) {
 
-        // Validate customer existence
-        Customer customer = validation.checkIfCustomerExist(customerId);
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String email = auth.getName();
 
-        // Fetch existing address
-        Address address = customer.getAddress();
+        Customer customer =
+                validation.checkCustomerByEmail_ReturnCustomer(email);
 
-        // If address does not exist, update is not allowed
-        if (address == null) {
-            throw new ResourceNotFoundException("No address found to update.");
+        Address address = addressRepository.findById(addressId)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Address not found"));
+
+        // Ownership check
+        if (!address.getCustomer().getId().equals(customer.getId())) {
+            throw new InvalidRequestException("You cannot update this address");
         }
 
-        // Update address fields
+        // Update fields
         address.setHouseno(addressRequest.getHouseno());
         address.setPinCode(addressRequest.getPinCode());
         address.setState(addressRequest.getState());
         address.setCity(addressRequest.getCity());
 
-        // Address is automatically updated due to transactional context
+        // Handle default flag change
+        if (Boolean.TRUE.equals(addressRequest.getIsDefault())) {
+            customer.getAddresses().forEach(addr -> addr.setIsDefault(false));
+            address.setIsDefault(true);
+        }
+
         return AddressTransformer.addressToAddressResponse(address);
     }
 
-    public AddressResponse getAddressById(int customerId) {
+    public List<AddressResponse> getAllAddresses() {
 
-        Customer customer = validation.checkIfCustomerExist(customerId);
-        Address address = customer.getAddress();
-        CustomerResponse customerResponse = CustomerTransformer.customerToCustomerResponse(customer);
-        AddressResponse addressResponse = AddressTransformer.addressToAddressResponse(address);
-        addressResponse.setCustomerResponse(customerResponse);
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String email = auth.getName();
 
-        return addressResponse;
+        Customer customer = validation.checkCustomerByEmail_ReturnCustomer(email);
+
+        List<Address> addresses = customer.getAddresses();
+        List<AddressResponse> addressResponses = new ArrayList<>();
+        for(Address address : addresses){
+            addressResponses.add(AddressTransformer.addressToAddressResponse(address));
+        }
+        
+        return addressResponses;
+    }
+
+    @Transactional
+    public void setDefault(Integer addressId) {
+
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String email = auth.getName();
+
+        Customer customer =
+                validation.checkCustomerByEmail_ReturnCustomer(email);
+
+        Address address = addressRepository.findById(addressId)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Address not found"));
+
+        // Ownership check (security)
+        if (!address.getCustomer().getId().equals(customer.getId())) {
+            throw new InvalidRequestException("You cannot modify this address");
+        }
+
+        // Unset previous default
+        customer.getAddresses()
+                .forEach(addr -> addr.setIsDefault(false));
+
+        // Set new default
+        address.setIsDefault(true);
     }
 }

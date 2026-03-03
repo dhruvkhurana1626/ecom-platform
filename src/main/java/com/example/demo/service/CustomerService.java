@@ -11,6 +11,10 @@ import com.example.demo.repository.CustomerRepository;
 import com.example.demo.transformers.CustomerTransformer;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -21,96 +25,51 @@ import java.util.List;
 public class CustomerService {
 
     private final CustomerRepository customerRepository;
-    private final Email email;
     private final Validation validation;
+    private final PasswordEncoder passwordEncoder;
 
-    public List<CustomerResponse> getCustomersByGender(Gender gender) {
-        //Query to get all the Customer by Gender
-        List<Customer> customerList = customerRepository.getCustomerByGender(gender);
+    // 1️⃣ Get Logged-in Profile
+    public CustomerResponse getProfile() {
 
-        //if No Customer with same gender , return empty list
-        if(customerList.isEmpty()) return new ArrayList<>();
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String email = auth.getName();
 
-        //Make a List of Customer Response
-        List<CustomerResponse> customerResponseList = new ArrayList<>();
-        //populate it by a loop
-        for(Customer customer : customerList){
-            customerResponseList.add(CustomerTransformer.customerToCustomerResponse(customer));
-        }
-        //return the list of Customer Response with same gender
-        return customerResponseList;
-    }
+        Customer customer = validation.checkCustomerByEmail_ReturnCustomer(email);
 
-    public CustomerResponse getCustomerById(int customerId) {
-        //Checking if Customer with Id Exists - Exception also thrown via Validation Checker
-        Customer customer = validation.checkIfCustomerExist(customerId);
-
-        //return CustomerResponse if Customer Exist
         return CustomerTransformer.customerToCustomerResponse(customer);
     }
 
-    public List<CustomerResponse> getCustomersByAge(int age) {
-        //Query to get a List of Customer with Same Age
-        List<Customer> customerList = customerRepository.findByAge(age);
-
-        //Converting customer into CustomerResponse , and adding it into the customerResponse list
-        List<CustomerResponse> customerResponseList = new ArrayList<>();
-        for(Customer c : customerList)
-            customerResponseList.add(CustomerTransformer.customerToCustomerResponse(c));
-
-        //return the CustomerResponse List
-        return customerResponseList;
-    }
-
+    // 2️⃣ Update Logged-in Profile
     @Transactional
-    public CustomerResponse updateCustomer(int customerId, CustomerRequest customerRequest) {
+    public CustomerResponse updateProfile(CustomerRequest request) {
 
-        // 1. Check if customer exists
-        Customer customer = validation.checkIfCustomerExist(customerId);
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String email = auth.getName();
 
-        // 2. Validate email only if user wants to update it
-        if (customerRequest.getEmail() != null &&
-                !customerRequest.getEmail().equals(customer.getEmail())) {
+        Customer customer = validation.checkCustomerByEmail_ReturnCustomer(email);
 
-            if (validation.checkIfEmailExist(customerRequest.getEmail())) {
-                throw new ConflictException("Email already used");
-            }
-            customer.setEmail(customerRequest.getEmail());
+        if(request.getName()!=null)customer.setName(request.getName());
+        if(request.getAge()>=18)customer.setAge(request.getAge());
+        if(request.getGender()!=null)customer.setGender(request.getGender());
+        if(request.getPhonenumber()!=null)customer.setPhonenumber(request.getPhonenumber());
+
+        // Update password only if provided
+        if (request.getPassword() != null && !request.getPassword().isBlank()) {
+            customer.setPassword(passwordEncoder.encode(request.getPassword()));
         }
 
-        // 3. Validate phone only if user wants to update it
-        if (customerRequest.getPhonenumber() != null &&
-                !customerRequest.getPhonenumber().equals(customer.getPhonenumber())) {
-
-            if (validation.checkIfPhoneNumberExist(customerRequest.getPhonenumber())) {
-                throw new ConflictException("Phone number already used");
-            }
-            customer.setPhonenumber(customerRequest.getPhonenumber());
-        }
-
-        // 4. Update remaining fields
-        if (customerRequest.getName() != null) {
-            customer.setName(customerRequest.getName());
-        }
-
-        if (customerRequest.getAge() > 0) {
-            customer.setAge(customerRequest.getAge());
-        }
-
-        if (customerRequest.getGender() != null) {
-            customer.setGender(customerRequest.getGender());
-        }
-
-        // 5. Save updated customer
-        Customer savedCustomer = customerRepository.save(customer);
-
-        // 6. Return response
-        return CustomerTransformer.customerToCustomerResponse(savedCustomer);
+        return CustomerTransformer.customerToCustomerResponse(customer);
     }
 
-    public String deleteCustomer(int customerId) {
-        Customer customer = validation.checkIfCustomerExist(customerId);
+    // 3️⃣ Delete Logged-in Account
+    @Transactional
+    public void deleteAccount() {
+
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String email = auth.getName();
+
+        Customer customer = validation.checkCustomerByEmail_ReturnCustomer(email);
+
         customerRepository.delete(customer);
-        return "Customer with id " + customerId + " deleted successfully";
     }
 }

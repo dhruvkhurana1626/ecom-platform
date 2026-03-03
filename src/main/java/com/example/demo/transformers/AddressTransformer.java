@@ -8,25 +8,24 @@ import lombok.experimental.UtilityClass;
 @UtilityClass
 public class AddressTransformer {
 
-    public Address addressRequestToAddress(AddressRequest addressRequest){
-        Address address = Address.builder()
-                .houseno(addressRequest.getHouseno())
-                .city(addressRequest.getCity())
-                .state(addressRequest.getState())
-                .pinCode(addressRequest.getPinCode())
+    public Address addressRequestToAddress(AddressRequest request) {
+        return Address.builder()
+                .houseno(request.getHouseno())
+                .city(request.getCity())
+                .state(request.getState())
+                .pinCode(request.getPinCode())
+                .isDefault(request.getIsDefault())
                 .build();
-
-        return address;
     }
 
-    public AddressResponse addressToAddressResponse(Address address){
-        AddressResponse addressResponse = AddressResponse.builder()
+    public AddressResponse addressToAddressResponse(Address address) {
+        return AddressResponse.builder()
+                .id(address.getId())
                 .houseno(address.getHouseno())
                 .city(address.getCity())
                 .state(address.getState())
                 .pinCode(address.getPinCode())
+                .isDefault(address.getIsDefault())
                 .build();
-
-        return addressResponse;
     }
 }

@@ -23,21 +23,27 @@ public class OrderEntity {
     @Id
     private Integer id;
 
-    @Column
+    @Column(nullable = false)
     private int totalCost;
 
     @Column
     @CreationTimestamp
     private LocalDateTime createdAt;
 
-    @Column
-    @Enumerated(value = EnumType.STRING)
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
     private OrderStatus orderStatus;
+
+    @Column
+    private String paymentIntentId;
+
+    @Column
+    private String paymentStatus;
 
     @OneToMany(mappedBy = "orderEntity",cascade = CascadeType.ALL)
     List<OrderItems> orderItems = new ArrayList<>();
 
-    @ManyToOne
-    @JoinColumn(name="customer_id")
-    Customer customer;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name="customer_id", nullable=false)
+    private Customer customer;
 }

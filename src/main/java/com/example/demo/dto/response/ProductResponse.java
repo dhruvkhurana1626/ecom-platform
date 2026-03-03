@@ -1,15 +1,22 @@
 package com.example.demo.dto.response;
 
+import com.example.demo.enums.Category;
 import lombok.*;
 
-@NoArgsConstructor
-@AllArgsConstructor
+import java.math.BigDecimal;
+
+@Builder
 @Getter
 @Setter
-@Builder
-
+@NoArgsConstructor
+@AllArgsConstructor
 public class ProductResponse {
+
+    private Integer id;
     private String name;
-    private int price;
-    private SellerResponse sellerResponse;
+    private BigDecimal price;
+    private Integer stock;
+    private Category category;
+
+    private String sellerName;   // lighter than full object
 }

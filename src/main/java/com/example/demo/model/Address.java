@@ -10,7 +10,8 @@ import lombok.*;
 @Entity
 @Builder
 
-@Table(name = "address_details")
+@Table(name="address_details",
+        indexes = @Index(name="idx_address_customer", columnList="customer_id"))
 public class Address {
 
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -26,7 +27,14 @@ public class Address {
     @Column(nullable = false)
     private String state;
 
+    @Column(nullable = false, length = 6)
+    private String pinCode;
+
     @Column(nullable = false)
-    private int pinCode;
+    private Boolean isDefault = false;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "customer_id", nullable = false)
+    private Customer customer;
 
 }

@@ -1,7 +1,9 @@
 package com.example.demo.service;
 
 import com.example.demo.Utility.Validation;
+import com.example.demo.configuration.AppUser;
 import com.example.demo.configuration.LoginRequest;
+import com.example.demo.configuration.LoginResponse;
 import com.example.demo.dto.request.CustomerRequest;
 import com.example.demo.dto.request.SellerRequest;
 import com.example.demo.dto.response.CustomerResponse;
@@ -35,35 +37,34 @@ public class AuthService {
     private final Validation validation;
 
     @Transactional
-    public CustomerResponse registerCustomer(CustomerRequest customerRequest) {
+    public CustomerResponse registerCustomer(CustomerRequest request) {
 
-        validation.validateNewCustomer(customerRequest);
+        validation.validateNewCustomer(request);
 
-        Customer customer = CustomerTransformer.customerRequestToCustomer(customerRequest);
-        customer.setPassword(passwordEncoder.encode(customerRequest.getPassword()));
-        customer.setRole(Role.CUSTOMER);
+        Customer customer = CustomerTransformer.customerRequestToCustomer(request);
+        customer.setPassword(passwordEncoder.encode(request.getPassword()));
+
         Customer savedCustomer = customerRepository.save(customer);
-        return CustomerTransformer.customerToCustomerResponse(savedCustomer);
 
+        return CustomerTransformer.customerToCustomerResponse(savedCustomer);
     }
 
     @Transactional
-    public SellerResponse registerSeller(SellerRequest sellerRequest) {
+    public SellerResponse registerSeller(SellerRequest request) {
 
-        validation.validateNewSeller(sellerRequest);
+        validation.validateNewSeller(request);
 
-        Seller seller = SellerTransformer.sellerRequestToSeller(sellerRequest);
-        seller.setPassword(passwordEncoder.encode(sellerRequest.getPassword()));
-        seller.setRole(Role.SELLER);
+        Seller seller = SellerTransformer.sellerRequestToSeller(request);
+        seller.setPassword(passwordEncoder.encode(request.getPassword()));
 
         Seller savedSeller = sellerRepository.save(seller);
-        return SellerTransformer.sellerToSellerResponse(savedSeller);
 
+        return SellerTransformer.sellerToSellerResponse(savedSeller);
     }
 
     private final AuthenticationManager authenticationManager;
 
-    public String login(LoginRequest request) {
+    public LoginResponse login(LoginRequest request) {
 
         Authentication authentication =
                 authenticationManager.authenticate(
@@ -73,9 +74,14 @@ public class AuthService {
                         )
                 );
 
-        SecurityContextHolder.getContext()
-                .setAuthentication(authentication);
+        SecurityContextHolder.getContext().setAuthentication(authentication);
 
-        return "Login successful";
+        AppUser user = (AppUser) authentication.getPrincipal();
+
+        return LoginResponse.builder()
+                .message("Login successful")
+                .email(user.getEmail())
+                .role(user.getRole().name())
+                .build();
     }
 }

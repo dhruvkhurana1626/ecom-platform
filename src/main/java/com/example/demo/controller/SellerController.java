@@ -15,4 +15,10 @@ public class SellerController {
 
     private final SellerService sellerService;
 
+    @GetMapping("/profile")
+    public ResponseEntity<SellerResponse> getProfile() {
+
+        return ResponseEntity.ok(sellerService.getProfile());
+    }
+
 }

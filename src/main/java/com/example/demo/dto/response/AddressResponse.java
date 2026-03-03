@@ -9,9 +9,10 @@ import lombok.*;
 @Builder
 
 public class AddressResponse {
+    private Integer id;
     private String houseno;
     private String city;
     private String state;
-    private int pinCode;
-    private CustomerResponse customerResponse;
+    private String pinCode;
+    private Boolean isDefault;
 }

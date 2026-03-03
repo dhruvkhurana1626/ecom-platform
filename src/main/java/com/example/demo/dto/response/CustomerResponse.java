@@ -2,17 +2,19 @@ package com.example.demo.dto.response;
 
 import lombok.*;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 
-@NoArgsConstructor
-@AllArgsConstructor
+@Builder
 @Getter
 @Setter
-@Builder
-
+@NoArgsConstructor
+@AllArgsConstructor
 public class CustomerResponse {
+
+    private Integer id;          // useful for frontend
     private String name;
     private String email;
     private String phonenumber;
-    private Date date;
+    private LocalDateTime createdAt;
 }

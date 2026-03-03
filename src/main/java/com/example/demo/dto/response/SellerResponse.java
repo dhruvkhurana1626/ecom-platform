@@ -1,6 +1,5 @@
 package com.example.demo.dto.response;
 
-import jdk.jfr.Category;
 import lombok.*;
 
 @NoArgsConstructor

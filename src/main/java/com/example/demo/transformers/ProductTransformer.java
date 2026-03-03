@@ -11,32 +11,25 @@ import java.util.List;
 @UtilityClass
 public class ProductTransformer {
 
-    public static Product productRequestToProduct(ProductRequest productRequest){
-        Product product = Product.builder()
-                .name(productRequest.getName())
-                .price(productRequest.getPrice())
-                .category(productRequest.getCategory())
-                .quantity(productRequest.getQuantity())
-                .build();
+    public static Product productRequestToProduct(ProductRequest request) {
 
-        return product;
+        return Product.builder()
+                .name(request.getName())
+                .price(request.getPrice())      // BigDecimal
+                .stock(request.getStock())      // renamed from quantity
+                .category(request.getCategory())
+                .build();
     }
 
-    public static ProductResponse productToProductResponse(Product product){
-        ProductResponse productResponse = ProductResponse.builder()
+    public static ProductResponse productToProductResponse(Product product) {
+
+        return ProductResponse.builder()
+                .id(product.getId())
                 .name(product.getName())
                 .price(product.getPrice())
-                .sellerResponse(SellerTransformer.sellerToSellerResponse(product.getSeller()))
+                .stock(product.getStock())
+                .category(product.getCategory())
+                .sellerName(product.getSeller().getName())
                 .build();
-
-        return productResponse;
-    }
-
-    public static List<ProductResponse> productListToProductResponse(List<Product> productList){
-        List<ProductResponse> productResponseList = new ArrayList<>();
-        for(Product product : productList){
-            productResponseList.add(ProductTransformer.productToProductResponse(product));
-        }
-        return productResponseList;
     }
 }

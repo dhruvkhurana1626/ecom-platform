@@ -28,7 +28,7 @@ public class Seller implements AppUser {
     @Column(unique = true,nullable = false)
     private String email;
 
-    @Column
+    @Column(nullable = false)
     private String password;
 
     @Enumerated(EnumType.STRING)
@@ -37,6 +37,15 @@ public class Seller implements AppUser {
     @Column(unique = true,nullable = false)
     private String pan;
 
-    @OneToMany(mappedBy = "seller",cascade = CascadeType.ALL)
-    List<Product> productList = new ArrayList<>();
+    @OneToMany(mappedBy = "seller",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true)
+    private List<Product> productList = new ArrayList<>();
+
+    @PrePersist
+    public void setDefaultRole() {
+        if(role == null){
+            role = Role.SELLER;
+        }
+    }
 }
