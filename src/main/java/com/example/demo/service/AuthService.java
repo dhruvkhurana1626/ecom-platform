@@ -3,6 +3,7 @@ package com.example.demo.service;
 import com.example.demo.Utility.Email;
 import com.example.demo.Utility.Validation;
 import com.example.demo.configuration.AppUser;
+import com.example.demo.configuration.CustomUserDetails;
 import com.example.demo.configuration.LoginRequest;
 import com.example.demo.configuration.LoginResponse;
 import com.example.demo.dto.request.CustomerRequest;
@@ -38,6 +39,7 @@ public class AuthService {
     private final CustomerRepository customerRepository;
     private final Validation validation;
     private final Email email;
+    private LoginRequest request;
 
     @Transactional
     public CustomerResponse registerCustomer(CustomerRequest request) {
@@ -48,7 +50,7 @@ public class AuthService {
         customer.setPassword(passwordEncoder.encode(request.getPassword()));
 
         Customer savedCustomer = customerRepository.save(customer);
-        email.sendEmailAtCustomerRegistration(customer);
+        email.sendEmailAtCustomerRegistration(savedCustomer);
         return CustomerTransformer.customerToCustomerResponse(savedCustomer);
     }
 
@@ -61,7 +63,7 @@ public class AuthService {
         seller.setPassword(passwordEncoder.encode(request.getPassword()));
 
         Seller savedSeller = sellerRepository.save(seller);
-
+        email.sendEmailAtSellerRegistration(savedSeller);
         return SellerTransformer.sellerToSellerResponse(savedSeller);
     }
 
@@ -79,7 +81,10 @@ public class AuthService {
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
-        AppUser user = (AppUser) authentication.getPrincipal();
+        CustomUserDetails userDetails =
+                (CustomUserDetails) authentication.getPrincipal();
+
+        AppUser user = userDetails.getUser();
 
         return LoginResponse.builder()
                 .message("Login successful")

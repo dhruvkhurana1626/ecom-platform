@@ -50,7 +50,7 @@ public class ProductController {
 
     @DeleteMapping("/{productId}")
     @PreAuthorize("hasRole('SELLER')")
-    public ResponseEntity deleteProductById(int productId){
+    public ResponseEntity deleteProductById(@PathVariable int productId){
         productService.deleteProductById(productId);
         return ResponseEntity.ok().build();
     }

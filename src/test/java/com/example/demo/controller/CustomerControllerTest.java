@@ -2,6 +2,7 @@ package com.example.demo.controller;
 
 import com.example.demo.dto.request.CustomerRequest;
 import com.example.demo.dto.response.CustomerResponse;
+import com.example.demo.service.AuthService;
 import com.example.demo.service.CustomerService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
@@ -11,6 +12,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -26,7 +28,7 @@ public class CustomerControllerTest {
     private MockMvc mockMvc;
 
     @MockitoBean
-    private CustomerService customerService;
+    private AuthService authService;
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -43,11 +45,11 @@ public class CustomerControllerTest {
         response.setName("Dhruv");
         response.setEmail("Dhruvkhurana162@gmail.com");
         response.setPhonenumber("8368799788");
-        response.setDate(new Date());
+        response.setCreatedAt(LocalDateTime.now());
 
         //Mocking the Service Layer
         //Controlling the output
-        when(customerService.addCustomer(any(CustomerRequest.class))).thenReturn(response);
+        when(authService.registerCustomer(any(CustomerRequest.class))).thenReturn(response);
 
         //Performing HTTP Request
         mockMvc.perform(post("/api/v1/user")

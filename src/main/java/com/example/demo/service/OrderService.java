@@ -14,6 +14,9 @@ import com.example.demo.repository.CustomerRepository;
 import com.example.demo.repository.OrderEntityRepository;
 import com.example.demo.repository.ProductRepository;
 import com.example.demo.transformers.OrderTransformer;
+import com.stripe.exception.StripeException;
+import com.stripe.model.PaymentIntent;
+import com.stripe.param.PaymentIntentCreateParams;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,6 +43,7 @@ public class OrderService {
     private final OrderEntityRepository orderEntityRepository;
     private final CustomerRepository customerRepository;
     private final ProductRepository productRepository;
+    private final CartService cartService;
 
     @Autowired
     private JavaMailSender javaMailSender;
@@ -55,6 +59,14 @@ public class OrderService {
         Cart cart = validation.checkCartByCustomerId_ReturnCart(customer.getId());
 
         if (cart.getCartItems().isEmpty()) {throw new BusinessException("Cart is empty");}
+
+        if(orderEntityRepository.existsByCustomerAndPaymentStatus(
+                customer,
+                PaymentStatus.PENDING
+        )){
+            throw new BusinessException(
+                    "Complete payment for your previous order first");
+        }
 
         Address address = validation.checkAddressOwnership(request.getAddressId(), customer);
 
@@ -99,11 +111,44 @@ public class OrderService {
 
         order.setOrderItems(orderItemsList);
         order.setTotalAmount(totalAmount);
-        order.setCurrency("INR");
+        order.setAddress(address);
+        order.setCurrency("inr");
 
         OrderEntity savedOrder = orderEntityRepository.save(order);
 
+        // Stripe SessionIntent
+
         return OrderTransformer.orderEntityToOrderEntityResponse(savedOrder);
+
+//        // Stripe PaymentIntent
+//        PaymentIntentCreateParams params =
+//                PaymentIntentCreateParams.builder()
+//                        .setAmount(
+//                                totalAmount
+//                                        .multiply(BigDecimal.valueOf(100))
+//                                        .longValue()
+//                        )
+//                        .setCurrency("inr")
+//                        .setAutomaticPaymentMethods(
+//                                PaymentIntentCreateParams
+//                                        .AutomaticPaymentMethods
+//                                        .builder()
+//                                        .setEnabled(true)
+//                                        .build()
+//                        )
+//                        .putMetadata("orderId",
+//                                savedOrder.getId().toString())
+//                        .build();
+//
+//        try {
+//            PaymentIntent paymentIntent = PaymentIntent.create(params);
+//
+//            savedOrder.setPaymentIntentId(paymentIntent.getId());
+//            return OrderTransformer.orderEntityToOrderEntityResponse(savedOrder);
+//
+//        } catch (StripeException e) {
+//            throw new RuntimeException("Stripe error: " + e.getMessage());
+//        }
     }
 
     @Transactional
@@ -116,6 +161,7 @@ public class OrderService {
         }
     }
 
+    @Transactional
     public void cancelOrder(Integer orderId) {
         OrderEntity orderEntity = validation.checkOrderByOrderId_ReturnOrder(orderId);
 
@@ -144,7 +190,7 @@ public class OrderService {
         }
 
         //Payment Still pending
-        if(orderEntity.getOrderStatus()==PENDING_PAYMENT){
+        if(orderEntity.getPaymentStatus()==PaymentStatus.PENDING){
             orderEntity.setOrderStatus(OrderStatus.CANCELLED);
             orderEntity.setPaymentStatus(PaymentStatus.CANCELLED);
             restoreStock(orderEntity);
@@ -152,7 +198,7 @@ public class OrderService {
         }
 
         //Payment Already Successfull
-        if(orderEntity.getOrderStatus()==OrderStatus.CONFIRMED){
+        if(orderEntity.getPaymentStatus()==PaymentStatus.SUCCESS){
             orderEntity.setOrderStatus(OrderStatus.REFUND_INITIATED);
             orderEntity.setPaymentStatus(PaymentStatus.REFUND_INITIATED);
 

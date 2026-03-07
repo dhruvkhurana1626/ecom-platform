@@ -17,6 +17,7 @@ public class OrderEntityResponse {
     private Integer orderId;
     private List<OrderItemsResponse> items;
     private BigDecimal totalAmount;
+    private String clientSecret;
     private PaymentStatus paymentStatus;
     private OrderStatus orderStatus;
 }

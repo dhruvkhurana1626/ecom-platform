@@ -21,7 +21,7 @@ public class CustomUserDetailsManager implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String email)
-            throws ResourceNotFoundException {
+            throws UsernameNotFoundException {
 
         // Try customer
         Optional<Customer> customerOpt = customerRepository.findByEmail(email);

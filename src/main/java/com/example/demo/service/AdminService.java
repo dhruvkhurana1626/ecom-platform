@@ -3,6 +3,8 @@ package com.example.demo.service;
 import com.example.demo.dto.response.CustomerResponse;
 import com.example.demo.dto.response.ProductResponse;
 import com.example.demo.dto.response.SellerResponse;
+import com.example.demo.enums.Role;
+import com.example.demo.model.Customer;
 import com.example.demo.repository.CustomerRepository;
 import com.example.demo.repository.ProductRepository;
 import com.example.demo.repository.SellerRepository;
@@ -12,6 +14,7 @@ import com.example.demo.transformers.SellerTransformer;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -23,10 +26,13 @@ public class AdminService {
     private final ProductRepository productRepository;
 
     public List<CustomerResponse> getAllCustomers() {
-        return customerRepository.findAll()
-                .stream()
-                .map(CustomerTransformer::customerToCustomerResponse)
-                .toList();
+        List<Customer> customers = customerRepository.findAll();
+        List<CustomerResponse> customerResponses = new ArrayList<>();
+        for(Customer customer : customers){
+            if(customer.getRole()==Role.ADMIN)continue;
+            customerResponses.add(CustomerTransformer.customerToCustomerResponse(customer));
+        }
+        return customerResponses;
     }
 
     public List<SellerResponse> getAllSellers() {

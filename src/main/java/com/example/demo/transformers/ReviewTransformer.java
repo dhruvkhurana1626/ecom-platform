@@ -17,6 +17,7 @@ public class ReviewTransformer {
 
     public static ReviewResponse reviewToReviewResponse(Review review){
         ReviewResponse reviewResponse = ReviewResponse.builder()
+                .id(review.getId())
                 .comment(review.getComment())
                 .rating(review.getRating())
                 .productName(review.getProduct().getName())

@@ -15,7 +15,7 @@ public class CartController {
 
     private final CartService cartService;
 
-    // 1️⃣ Add or update item
+    // Add or update item
     @PostMapping("/items")
     public ResponseEntity<CartResponse> addToCart(
             @RequestBody @Valid AddToCartRequest request) {
@@ -23,14 +23,14 @@ public class CartController {
         return ResponseEntity.ok(cartService.addToCart(request));
     }
 
-    // 2️⃣ View cart
+    // View cart
     @GetMapping
     public ResponseEntity<CartResponse> getCart() {
 
         return ResponseEntity.ok(cartService.getCart());
     }
 
-    // 3️⃣ Remove specific item
+    // Remove specific item
     @DeleteMapping("/items/{productId}")
     public ResponseEntity<CartResponse> removeItem(
             @PathVariable Integer productId) {
@@ -38,7 +38,7 @@ public class CartController {
         return ResponseEntity.ok(cartService.removeItem(productId));
     }
 
-    // 4️⃣ Clear cart
+    // Clear Cart completely
     @DeleteMapping("/clear")
     public ResponseEntity<Void> clearCart() {
 

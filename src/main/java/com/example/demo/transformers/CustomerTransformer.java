@@ -21,6 +21,7 @@ public class CustomerTransformer {
 
     public static CustomerResponse customerToCustomerResponse(Customer customer){
         CustomerResponse customerResponse = CustomerResponse.builder()
+                .id(customer.getId())
                 .name(customer.getName())
                 .email(customer.getEmail())
                 .phonenumber(customer.getPhonenumber())

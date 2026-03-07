@@ -1,5 +1,6 @@
 package com.example.demo.dto.request;
 import com.example.demo.enums.Gender;
+import jakarta.persistence.Column;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

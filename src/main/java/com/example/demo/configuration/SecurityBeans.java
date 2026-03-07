@@ -31,8 +31,10 @@ public class SecurityBeans {
                                 "/swagger-ui.html",
                                 "/v3/api-docs/**"
                         ).permitAll()
-                        .requestMatchers(HttpMethod.POST,"/api/v1/product/**").hasRole("SELLER")
-                        .requestMatchers(HttpMethod.GET,"/api/v1/product/**").hasRole("CUSTOMER")
+                        .requestMatchers("/api/v1/admin").hasRole("ADMIN")
+                        .requestMatchers("api/v1/address").hasRole("CUSTOMER")
+                        .requestMatchers(HttpMethod.POST,"/api/v1/products/**").hasRole("SELLER")
+                        .requestMatchers(HttpMethod.GET,"/api/v1/products/**").hasAnyRole("CUSTOMER","SELLER")
                         .requestMatchers(HttpMethod.GET,"/api/v1/review/**").permitAll()
                         .requestMatchers(HttpMethod.POST,"/api/v1/review/**").hasRole("CUSTOMER")
                         .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")

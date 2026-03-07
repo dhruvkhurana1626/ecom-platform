@@ -4,7 +4,6 @@ import com.example.demo.enums.OrderStatus;
 import com.example.demo.enums.PaymentStatus;
 import com.example.demo.model.OrderEntity;
 import com.example.demo.model.OrderItems;
-import com.example.demo.model.Product;
 import com.example.demo.repository.OrderEntityRepository;
 import com.example.demo.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
@@ -12,7 +11,6 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
 

@@ -24,40 +24,40 @@ public class OrderEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    // 1️⃣ Money (Stripe ready)
+    // Money (Stripe ready)
     @Column(nullable = false, precision = 12, scale = 2)
     private BigDecimal totalAmount;
 
-    // 2️⃣ Currency
+    // Currency
     @Column(nullable = false)
     private String currency;
 
-    // 3️⃣ Order Status
+    // Order Status
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private OrderStatus orderStatus;
 
-    // 4️⃣ Payment Status (ENUM, not String)
+    // Payment Status (ENUM, not String)
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private PaymentStatus paymentStatus;
 
-    // 5️⃣ Stripe reference
+    // Stripe reference
     @Column(unique = true)
-    private String paymentIntentId;
+    private String stripeSessionId;
 
-    // 6️⃣ Address snapshot (recommended)
+    // Address snapshot (recommended)
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "address_id", nullable = false)
     private Address address;
 
-    // 7️⃣ Order items
+    // Order items
     @OneToMany(mappedBy = "orderEntity",
             cascade = CascadeType.ALL,
             orphanRemoval = true)
     private List<OrderItems> orderItems = new ArrayList<>();
 
-    // 8️⃣ Customer
+    // Customer
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "customer_id", nullable = false)
     private Customer customer;
