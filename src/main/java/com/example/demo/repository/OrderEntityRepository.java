@@ -33,7 +33,5 @@ public interface OrderEntityRepository extends JpaRepository<OrderEntity,Integer
     void updateOrderStatus(@Param("orderId") int orderId,
                           @Param("status") OrderStatus status);
 
-    Optional<OrderEntity> findByPaymentIntentId(String paymentIntentId);
-
     boolean existsByCustomerAndPaymentStatus(Customer customer, PaymentStatus paymentStatus);
 }

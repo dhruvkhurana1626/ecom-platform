@@ -16,7 +16,9 @@ import com.example.demo.repository.ProductRepository;
 import com.example.demo.transformers.OrderTransformer;
 import com.stripe.exception.StripeException;
 import com.stripe.model.PaymentIntent;
+import com.stripe.model.checkout.Session;
 import com.stripe.param.PaymentIntentCreateParams;
+import com.stripe.param.checkout.SessionCreateParams;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -117,8 +119,56 @@ public class OrderService {
         OrderEntity savedOrder = orderEntityRepository.save(order);
 
         // Stripe SessionIntent
+        SessionCreateParams.Builder paramsBuilder =
+                SessionCreateParams.builder()
+                        .setMode(SessionCreateParams.Mode.PAYMENT)
+                        .setSuccessUrl("http://localhost:3000/success")
+                        .setCancelUrl("http://localhost:3000/cancel")
+                        .putMetadata("orderId", savedOrder.getId().toString());
 
-        return OrderTransformer.orderEntityToOrderEntityResponse(savedOrder);
+        for (OrderItems item : orderItemsList) {
+
+            paramsBuilder.addLineItem(
+                    SessionCreateParams.LineItem.builder()
+                            .setQuantity((long) item.getQuantity())
+                            .setPriceData(
+                                    SessionCreateParams.LineItem.PriceData.builder()
+                                            .setCurrency("inr")
+                                            .setUnitAmount(
+                                                    item.getPrice()
+                                                            .multiply(BigDecimal.valueOf(100))
+                                                            .longValue()
+                                            )
+                                            .setProductData(
+                                                    SessionCreateParams.LineItem.PriceData.ProductData
+                                                            .builder()
+                                                            .setName(item.getProduct().getName())
+                                                            .build()
+                                            )
+                                            .build()
+                            )
+                            .build()
+            );
+        }
+
+        try {
+
+            Session session = Session.create(paramsBuilder.build());
+
+            savedOrder.setStripeSessionId(session.getId());
+            orderEntityRepository.save(savedOrder);
+
+            OrderEntityResponse response =
+                    OrderTransformer.orderEntityToOrderEntityResponse(savedOrder);
+
+            response.setSetCheckoutUrl(session.getUrl());
+
+            return response;
+
+        } catch (StripeException e) {
+            throw new RuntimeException("Stripe error: " + e.getMessage());
+        }
+
 
 //        // Stripe PaymentIntent
 //        PaymentIntentCreateParams params =

@@ -16,6 +16,7 @@ public class OrderTransformer {
                 .orderId(orderEntity.getId())
                 .totalAmount(orderEntity.getTotalAmount())
                 .orderStatus(orderEntity.getOrderStatus())
+                .paymentStatus(orderEntity.getPaymentStatus())
                 .items(getOrderItemsResponseList(orderEntity.getOrderItems()))
                 .build();
 
