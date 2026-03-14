@@ -259,6 +259,13 @@ public class OrderService {
 
             restoreStock(orderEntity);
         }
+    }
 
+    @Transactional
+    public void markOrderDone(Integer orderId){
+        OrderEntity order = validation.checkOrderByOrderId_ReturnOrder(orderId);
+
+        order.setPaymentStatus(PaymentStatus.SUCCESS);
+        order.setOrderStatus(OrderStatus.CONFIRMED);
     }
 }
