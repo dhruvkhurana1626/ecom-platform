@@ -2,22 +2,20 @@ package com.example.demo.service;
 
 import com.example.demo.Utility.Email;
 import com.example.demo.Utility.Validation;
+import com.example.demo.controller.stripe.StripeService;
 import com.example.demo.dto.request.OrderEntityRequest;
 import com.example.demo.dto.response.OrderEntityResponse;
 import com.example.demo.enums.OrderStatus;
 import com.example.demo.enums.PaymentStatus;
 import com.example.demo.exception.BusinessException;
 import com.example.demo.exception.InvalidRequestException;
-import com.example.demo.exception.ResourceNotFoundException;
 import com.example.demo.model.*;
 import com.example.demo.repository.CustomerRepository;
 import com.example.demo.repository.OrderEntityRepository;
 import com.example.demo.repository.ProductRepository;
 import com.example.demo.transformers.OrderTransformer;
 import com.stripe.exception.StripeException;
-import com.stripe.model.PaymentIntent;
 import com.stripe.model.checkout.Session;
-import com.stripe.param.PaymentIntentCreateParams;
 import com.stripe.param.checkout.SessionCreateParams;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -33,8 +31,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.example.demo.enums.OrderStatus.PENDING_PAYMENT;
-
 @Service
 @RequiredArgsConstructor
 
@@ -46,9 +42,7 @@ public class OrderService {
     private final CustomerRepository customerRepository;
     private final ProductRepository productRepository;
     private final CartService cartService;
-
-    @Autowired
-    private JavaMailSender javaMailSender;
+    private final StripeService stripeService;
 
     @Transactional
     public OrderEntityResponse placeOrder(OrderEntityRequest request) {
@@ -59,6 +53,10 @@ public class OrderService {
 
         Customer customer = validation.checkCustomerByEmail_ReturnCustomer(email);
         Cart cart = validation.checkCartByCustomerId_ReturnCart(customer.getId());
+
+        if(customer.getAddresses().size()==0){
+            throw new BusinessException("Pls add atleast 1 address before making an order");
+        }
 
         if (cart.getCartItems().isEmpty()) {throw new BusinessException("Cart is empty");}
 
@@ -253,6 +251,8 @@ public class OrderService {
             orderEntity.setPaymentStatus(PaymentStatus.REFUND_INITIATED);
 
             //Stripe Api Integration
+            OrderEntity order = validation.checkOrderByOrderId_ReturnOrder(orderId);
+            stripeService.refundPayment(order.getPaymentIntentId());
 
             orderEntity.setOrderStatus(OrderStatus.REFUNDED);
             orderEntity.setPaymentStatus(PaymentStatus.REFUNDED);
@@ -267,5 +267,15 @@ public class OrderService {
 
         order.setPaymentStatus(PaymentStatus.SUCCESS);
         order.setOrderStatus(OrderStatus.CONFIRMED);
+
+        email.sendEmailAfterOrderPlaced(order);
+    }
+
+    @Transactional
+    public void markOrderRefunded(OrderEntity order) {
+        order.setOrderStatus(OrderStatus.REFUNDED);
+        order.setPaymentStatus(PaymentStatus.REFUNDED);
+
+        email.sendEmailForOrderRefund(order);
     }
 }

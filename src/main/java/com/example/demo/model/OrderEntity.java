@@ -46,6 +46,10 @@ public class OrderEntity {
     @Column(unique = true)
     private String stripeSessionId;
 
+    // Stripe payment Intent id
+    @Column
+    private String paymentIntentId;
+
     // Address snapshot (recommended)
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "address_id", nullable = false)

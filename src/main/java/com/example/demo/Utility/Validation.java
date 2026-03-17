@@ -103,4 +103,8 @@ public class Validation {
         return orderEntityRepository.findById(orderId)
                 .orElseThrow(()-> new ResourceNotFoundException("Order Not Found"));
     }
+
+    public OrderEntity findByPaymentIntentId_ReturnOrder(String paymentIntentId) {
+        return orderEntityRepository.findByPaymentIntentId(paymentIntentId);
+    }
 }

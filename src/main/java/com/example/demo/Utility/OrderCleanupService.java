@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -45,5 +46,22 @@ public class OrderCleanupService {
             }
         }
     }
+
+    //to clean all the failed and cancelled orders from database
+//    @Transactional
+//    @Scheduled(fixedRate = 6000000)
+//    public void clearCancelledandFailedOrders(){
+//
+//        List<OrderEntity> cancelledOrders = orderEntityRepository.findByOrderStatus(OrderStatus.CANCELLED);
+//        for(OrderEntity order : cancelledOrders){
+//            orderEntityRepository.delete(order);
+//        }
+//
+//        List<OrderEntity> failedOrders = orderEntityRepository.findByOrderStatus(OrderStatus.FAILED);
+//        for(OrderEntity order : failedOrders){
+//            orderEntityRepository.delete(order);
+//        }
+//
+//    }
 
 }
