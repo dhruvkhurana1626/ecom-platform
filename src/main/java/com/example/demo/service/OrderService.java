@@ -19,8 +19,6 @@ import com.stripe.model.checkout.Session;
 import com.stripe.param.checkout.SessionCreateParams;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -54,7 +52,7 @@ public class OrderService {
         Customer customer = validation.checkCustomerByEmail_ReturnCustomer(email);
         Cart cart = validation.checkCartByCustomerId_ReturnCart(customer.getId());
 
-        if(customer.getAddresses().size()==0){
+        if(customer.getAddresses().isEmpty()){
             throw new BusinessException("Pls add atleast 1 address before making an order");
         }
 
@@ -167,36 +165,6 @@ public class OrderService {
             throw new RuntimeException("Stripe error: " + e.getMessage());
         }
 
-
-//        // Stripe PaymentIntent
-//        PaymentIntentCreateParams params =
-//                PaymentIntentCreateParams.builder()
-//                        .setAmount(
-//                                totalAmount
-//                                        .multiply(BigDecimal.valueOf(100))
-//                                        .longValue()
-//                        )
-//                        .setCurrency("inr")
-//                        .setAutomaticPaymentMethods(
-//                                PaymentIntentCreateParams
-//                                        .AutomaticPaymentMethods
-//                                        .builder()
-//                                        .setEnabled(true)
-//                                        .build()
-//                        )
-//                        .putMetadata("orderId",
-//                                savedOrder.getId().toString())
-//                        .build();
-//
-//        try {
-//            PaymentIntent paymentIntent = PaymentIntent.create(params);
-//
-//            savedOrder.setPaymentIntentId(paymentIntent.getId());
-//            return OrderTransformer.orderEntityToOrderEntityResponse(savedOrder);
-//
-//        } catch (StripeException e) {
-//            throw new RuntimeException("Stripe error: " + e.getMessage());
-//        }
     }
 
     @Transactional
@@ -207,6 +175,8 @@ public class OrderService {
                     item.getQuantity()
             );
         }
+
+        email.sendEmailForOrderCancellation(order);
     }
 
     @Transactional
@@ -246,7 +216,7 @@ public class OrderService {
         }
 
         //Payment Already Successfull
-        if(orderEntity.getPaymentStatus()==PaymentStatus.SUCCESS){
+        if(orderEntity.getPaymentStatus()==PaymentStatus.SUCCESS) {
             orderEntity.setOrderStatus(OrderStatus.REFUND_INITIATED);
             orderEntity.setPaymentStatus(PaymentStatus.REFUND_INITIATED);
 
@@ -256,13 +226,14 @@ public class OrderService {
 
             orderEntity.setOrderStatus(OrderStatus.REFUNDED);
             orderEntity.setPaymentStatus(PaymentStatus.REFUNDED);
-
             restoreStock(orderEntity);
         }
+
     }
 
     @Transactional
     public void markOrderDone(Integer orderId){
+
         OrderEntity order = validation.checkOrderByOrderId_ReturnOrder(orderId);
 
         order.setPaymentStatus(PaymentStatus.SUCCESS);
@@ -273,6 +244,7 @@ public class OrderService {
 
     @Transactional
     public void markOrderRefunded(OrderEntity order) {
+
         order.setOrderStatus(OrderStatus.REFUNDED);
         order.setPaymentStatus(PaymentStatus.REFUNDED);
 

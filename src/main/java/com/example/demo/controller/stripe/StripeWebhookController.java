@@ -89,7 +89,6 @@ public class StripeWebhookController {
             OrderEntity order = validation.checkOrderByOrderId_ReturnOrder(orderId);
 
             orderService.cancelOrder(orderId);
-            orderService.restoreStock(order);
 
             System.out.println("Order marked cancelled: " + orderId);
         }
@@ -111,7 +110,6 @@ public class StripeWebhookController {
             if(order.getPaymentStatus() != PaymentStatus.REFUNDED){
 
                 orderService.markOrderRefunded(order);
-                orderService.restoreStock(order);
 
                 System.out.println("Order refunded: " + order.getId());
             }

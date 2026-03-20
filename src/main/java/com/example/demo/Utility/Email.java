@@ -449,4 +449,110 @@ public class Email {
                 throw new RuntimeException("Failed to send refund email", e);
             }
     }
+
+    public void sendEmailForOrderCancellation(OrderEntity order) {
+
+        if (order == null || order.getCustomer() == null) {
+            throw new IllegalArgumentException("Order or Customer can't be null");
+        }
+
+        try {
+            Customer customer = order.getCustomer();
+
+            String customerName = customer.getName();
+            String customerEmail = customer.getEmail();
+            Integer orderId = order.getId();
+
+            // Date formatting
+            String orderDate = order.getCreatedAt()
+                    .format(DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss"));
+
+            // Address
+            Address address = order.getAddress();
+            String deliveryAddress = address.getHouseno() + " "
+                    + address.getCity() + " "
+                    + address.getPinCode();
+
+            // Amount (if needed for refund reference)
+            BigDecimal amount = order.getTotalAmount();
+
+            String htmlContent = """
+        <html>
+        <body style="font-family:Arial,sans-serif;background:#f4f6f8;padding:20px;">
+        
+        <div style="max-width:600px;margin:auto;background:white;border-radius:10px;overflow:hidden;">
+        
+        <div style="background:#6c757d;color:white;padding:20px;text-align:center;">
+            <h2>Order Cancelled</h2>
+        </div>
+        
+        <div style="padding:25px;">
+        
+        <p>Hi <b>%s</b>,</p>
+        
+        <p>Your order has been successfully cancelled. Below are the details:</p>
+        
+        <h3>Order Details</h3>
+        
+        <p>
+        <b>Order ID:</b> %s <br>
+        <b>Order Date:</b> %s <br>
+        <b>Delivery Address:</b> %s <br>
+        <b>Total Amount:</b> ₹%s
+        </p>
+        
+        <p>
+        If a payment was made, the refund will be processed to your original payment method
+        within <b>3–7 business days</b>.
+        </p>
+        
+        <div style="text-align:center;margin-top:30px;">
+            <a href="http://localhost:3000/orders"
+               style="background:#2874f0;color:white;padding:12px 20px;
+               text-decoration:none;border-radius:5px;font-weight:bold;">
+               View Your Orders
+            </a>
+        </div>
+        
+        <p style="margin-top:30px;">
+        If you have any questions, feel free to contact our support team.
+        </p>
+        
+        <p>
+        Thanks,<br>
+        <b>ShopSphere Team</b>
+        </p>
+        
+        </div>
+        
+        <div style="background:#f4f4f4;padding:15px;text-align:center;font-size:12px;">
+            © 2026 ShopSphere Inc.
+        </div>
+        
+        </div>
+        
+        </body>
+        </html>
+        """.formatted(
+                    customerName,
+                    orderId,
+                    orderDate,
+                    deliveryAddress,
+                    amount
+            );
+
+            MimeMessage message = javaMailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true);
+
+            helper.setTo(customerEmail);
+            helper.setFrom("dhruvjavadev162@gmail.com");
+            helper.setSubject("Your Order Has Been Cancelled");
+            helper.setText(htmlContent, true);
+
+            javaMailSender.send(message);
+
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to send cancellation email", e);
+        }
+    }
 }
