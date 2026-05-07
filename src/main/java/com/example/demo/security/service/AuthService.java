@@ -1,16 +1,11 @@
-package com.example.demo.service;
+package com.example.demo.security;
 
 import com.example.demo.Utility.Email;
 import com.example.demo.Utility.Validation;
-import com.example.demo.configuration.AppUser;
-import com.example.demo.configuration.CustomUserDetails;
-import com.example.demo.configuration.LoginRequest;
-import com.example.demo.configuration.LoginResponse;
 import com.example.demo.dto.request.CustomerRequest;
 import com.example.demo.dto.request.SellerRequest;
 import com.example.demo.dto.response.CustomerResponse;
 import com.example.demo.dto.response.SellerResponse;
-import com.example.demo.enums.Role;
 import com.example.demo.model.Customer;
 import com.example.demo.model.Seller;
 import com.example.demo.repository.CustomerRepository;
@@ -20,7 +15,6 @@ import com.example.demo.transformers.SellerTransformer;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -39,6 +33,7 @@ public class AuthService {
     private final CustomerRepository customerRepository;
     private final Validation validation;
     private final Email email;
+    private final JwtUtil jwtUtil;
     private LoginRequest request;
 
     @Transactional
@@ -86,10 +81,13 @@ public class AuthService {
 
         AppUser user = userDetails.getUser();
 
+        String token = jwtUtil.generateToken(user.getEmail(),user.getRole());
+
         return LoginResponse.builder()
                 .message("Login successful")
                 .email(user.getEmail())
                 .role(user.getRole().name())
+                .token(token)
                 .build();
     }
 }

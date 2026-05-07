@@ -1,6 +1,5 @@
-package com.example.demo.configuration;
+package com.example.demo.security;
 
-import com.example.demo.exception.ResourceNotFoundException;
 import com.example.demo.model.Customer;
 import com.example.demo.model.Seller;
 import com.example.demo.repository.CustomerRepository;

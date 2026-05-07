@@ -1,4 +1,4 @@
-package com.example.demo.configuration;
+package com.example.demo.security;
 
 import lombok.*;
 
@@ -12,4 +12,5 @@ public class LoginResponse {
     private String message;
     private String email;
     private String role;
+    private String token;
 }
