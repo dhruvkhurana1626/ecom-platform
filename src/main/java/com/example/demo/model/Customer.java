@@ -1,5 +1,5 @@
 package com.example.demo.model;
-import com.example.demo.configuration.AppUser;
+import com.example.demo.security.basicAuth.AppUser;
 import com.example.demo.enums.Gender;
 import com.example.demo.enums.Role;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -9,7 +9,6 @@ import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 @NoArgsConstructor

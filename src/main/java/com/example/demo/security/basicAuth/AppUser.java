@@ -1,4 +1,4 @@
-package com.example.demo.security;
+package com.example.demo.security.basicAuth;
 
 import com.example.demo.enums.Role;
 

@@ -9,6 +9,7 @@ import com.example.demo.model.Product;
 import com.example.demo.model.Seller;
 import com.example.demo.repository.ProductRepository;
 import com.example.demo.repository.SellerRepository;
+import com.example.demo.security.utility.SecurityUtil;
 import com.example.demo.transformers.ProductTransformer;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -28,8 +29,7 @@ import java.util.List;
     @Transactional
     public ProductResponse addProduct(ProductRequest request) {
 
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        String email = auth.getName();
+        String email = SecurityUtil.getCurrentUserEmail();
 
         Seller seller = validation.checkSellerByEmail_ReturnSeller(email);
 
@@ -58,8 +58,8 @@ import java.util.List;
 
     public ProductResponse updateProductByProductId(ProductRequest productRequest,int productId) {
 
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        String email = auth.getName();
+        String email = SecurityUtil.getCurrentUserEmail();
+
         Seller seller = validation.checkSellerByEmail_ReturnSeller(email);
 
         Product product = validation.checkProductByProductId_ReturnProduct(productId);
@@ -83,8 +83,9 @@ import java.util.List;
     }
 
     public void deleteProductById(int productId) {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        String email = auth.getName();
+
+        String email = SecurityUtil.getCurrentUserEmail();
+
         Seller seller = validation.checkSellerByEmail_ReturnSeller(email);
 
         Product product = validation.checkProductByProductId_ReturnProduct(productId);

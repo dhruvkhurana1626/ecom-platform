@@ -2,8 +2,7 @@ package com.example.demo.controller;
 
 import com.example.demo.dto.request.CustomerRequest;
 import com.example.demo.dto.response.CustomerResponse;
-import com.example.demo.service.AuthService;
-import com.example.demo.service.CustomerService;
+import com.example.demo.security.service.AuthService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,7 +12,6 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.LocalDateTime;
-import java.util.Date;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;

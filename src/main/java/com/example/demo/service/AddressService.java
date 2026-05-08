@@ -10,6 +10,7 @@ import com.example.demo.model.Address;
 import com.example.demo.model.Customer;
 import com.example.demo.repository.AddressRepository;
 import com.example.demo.repository.CustomerRepository;
+import com.example.demo.security.utility.SecurityUtil;
 import com.example.demo.transformers.AddressTransformer;
 import com.example.demo.transformers.CustomerTransformer;
 import jakarta.transaction.Transactional;
@@ -31,8 +32,7 @@ public class AddressService {
 
     public AddressResponse addAddress(AddressRequest addressRequest) {
 
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        String email = auth.getName();
+        String email = SecurityUtil.getCurrentUserEmail();
         Customer customer = validation.checkCustomerByEmail_ReturnCustomer(email);
 
         Address address = AddressTransformer.addressRequestToAddress(addressRequest);
@@ -53,8 +53,7 @@ public class AddressService {
     @Transactional
     public void deleteAddress(Integer addressId) {
 
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        String email = auth.getName();
+        String email = SecurityUtil.getCurrentUserEmail();
 
         Customer customer = validation.checkCustomerByEmail_ReturnCustomer(email);
         Address address = validation.checkAddressByAddressID_ReturnAddress(addressId);
@@ -71,8 +70,7 @@ public class AddressService {
     public AddressResponse updateAddress(Integer addressId,
                                          AddressRequest addressRequest) {
 
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        String email = auth.getName();
+        String email = SecurityUtil.getCurrentUserEmail();
 
         Customer customer =
                 validation.checkCustomerByEmail_ReturnCustomer(email);
@@ -103,8 +101,7 @@ public class AddressService {
 
     public List<AddressResponse> getAllAddresses() {
 
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        String email = auth.getName();
+        String email = SecurityUtil.getCurrentUserEmail();
 
         Customer customer = validation.checkCustomerByEmail_ReturnCustomer(email);
 
@@ -120,8 +117,7 @@ public class AddressService {
     @Transactional
     public void setDefault(Integer addressId) {
 
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        String email = auth.getName();
+        String email = SecurityUtil.getCurrentUserEmail();
 
         Customer customer =
                 validation.checkCustomerByEmail_ReturnCustomer(email);

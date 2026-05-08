@@ -11,6 +11,7 @@ import com.example.demo.model.Review;
 import com.example.demo.repository.CustomerRepository;
 import com.example.demo.repository.ProductRepository;
 import com.example.demo.repository.ReviewRepository;
+import com.example.demo.security.utility.SecurityUtil;
 import com.example.demo.transformers.ReviewTransformer;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
@@ -33,8 +34,7 @@ public class ReviewService {
 
     public List<ReviewResponse> getReviewByCustomer() {
 
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        String email = auth.getName();
+        String email = SecurityUtil.getCurrentUserEmail();
 
         Customer customer = validation.checkCustomerByEmail_ReturnCustomer(email);
 
@@ -49,8 +49,7 @@ public class ReviewService {
     public ReviewResponse addReview(ReviewRequest reviewRequest,
                                     Integer productId) {
 
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        String email = auth.getName();
+        String email = SecurityUtil.getCurrentUserEmail();
 
         Customer customer = validation.checkCustomerByEmail_ReturnCustomer(email);
 
@@ -99,8 +98,7 @@ public class ReviewService {
     @Transactional
     public void deleteReview(Integer reviewId) {
 
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        String email = auth.getName();
+        String email = SecurityUtil.getCurrentUserEmail();
 
         Customer customer = validation.checkCustomerByEmail_ReturnCustomer(email);
 
@@ -119,8 +117,7 @@ public class ReviewService {
     public ReviewResponse updateReview(Integer reviewId,
                                        ReviewRequest request) {
 
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        String email = auth.getName();
+        String email = SecurityUtil.getCurrentUserEmail();
 
         Customer customer = validation.checkCustomerByEmail_ReturnCustomer(email);
 

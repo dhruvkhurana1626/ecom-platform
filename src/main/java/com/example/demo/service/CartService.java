@@ -11,6 +11,7 @@ import com.example.demo.model.Product;
 import com.example.demo.repository.CartRepository;
 import com.example.demo.repository.CustomerRepository;
 import com.example.demo.repository.ProductRepository;
+import com.example.demo.security.utility.SecurityUtil;
 import com.example.demo.transformers.CartTransformer;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -37,8 +38,8 @@ public class CartService {
     @Transactional
     public CartResponse addToCart(AddToCartRequest request) {
 
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String email = authentication.getName();
+        String email = SecurityUtil.getCurrentUserEmail();
+
         Customer customer = validation.checkCustomerByEmail_ReturnCustomer(email);
 
         Product product = validation.checkProductByProductId_ReturnProduct(request.getProductId());
@@ -86,8 +87,7 @@ public class CartService {
     @Transactional
     public CartResponse getCart() {
 
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        String email = auth.getName();
+        String email = SecurityUtil.getCurrentUserEmail();
 
         Customer customer = validation.checkCustomerByEmail_ReturnCustomer(email);
         Cart cart = validation.checkCartByCustomerId_ReturnCart(customer.getId());
@@ -97,8 +97,8 @@ public class CartService {
 
     @Transactional
     public CartResponse removeItem(Integer productId) {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        String email = auth.getName();
+
+        String email = SecurityUtil.getCurrentUserEmail();
 
         Customer customer = validation.checkCustomerByEmail_ReturnCustomer(email);
         Cart cart = validation.checkCartByCustomerId_ReturnCart(customer.getId());
@@ -116,8 +116,8 @@ public class CartService {
 
     @Transactional
     public void clearCart() {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        String email = auth.getName();
+
+        String email = SecurityUtil.getCurrentUserEmail();
 
         Customer customer = validation.checkCustomerByEmail_ReturnCustomer(email);
         Cart cart = validation.checkCartByCustomerId_ReturnCart(customer.getId());

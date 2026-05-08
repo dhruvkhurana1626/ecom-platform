@@ -1,6 +1,6 @@
 package com.example.demo.model;
 
-import com.example.demo.configuration.AppUser;
+import com.example.demo.security.basicAuth.AppUser;
 import com.example.demo.enums.Role;
 import jakarta.persistence.*;
 import lombok.*;

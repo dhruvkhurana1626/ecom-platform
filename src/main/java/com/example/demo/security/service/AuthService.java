@@ -1,4 +1,4 @@
-package com.example.demo.security;
+package com.example.demo.security.service;
 
 import com.example.demo.Utility.Email;
 import com.example.demo.Utility.Validation;
@@ -10,6 +10,11 @@ import com.example.demo.model.Customer;
 import com.example.demo.model.Seller;
 import com.example.demo.repository.CustomerRepository;
 import com.example.demo.repository.SellerRepository;
+import com.example.demo.security.basicAuth.AppUser;
+import com.example.demo.security.basicAuth.CustomUserDetails;
+import com.example.demo.security.dto.LoginRequest;
+import com.example.demo.security.dto.LoginResponse;
+import com.example.demo.security.jwt.JwtUtil;
 import com.example.demo.transformers.CustomerTransformer;
 import com.example.demo.transformers.SellerTransformer;
 import jakarta.transaction.Transactional;

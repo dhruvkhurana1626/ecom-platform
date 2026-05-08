@@ -8,6 +8,7 @@ import com.example.demo.enums.Gender;
 import com.example.demo.exception.ConflictException;
 import com.example.demo.model.Customer;
 import com.example.demo.repository.CustomerRepository;
+import com.example.demo.security.utility.SecurityUtil;
 import com.example.demo.transformers.CustomerTransformer;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -31,8 +32,7 @@ public class CustomerService {
     // 1️⃣ Get Logged-in Profile
     public CustomerResponse getProfile() {
 
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        String email = auth.getName();
+        String email = SecurityUtil.getCurrentUserEmail();
 
         Customer customer = validation.checkCustomerByEmail_ReturnCustomer(email);
 
@@ -43,8 +43,7 @@ public class CustomerService {
     @Transactional
     public CustomerResponse updateProfile(CustomerRequest request) {
 
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        String email = auth.getName();
+        String email = SecurityUtil.getCurrentUserEmail();
 
         Customer customer = validation.checkCustomerByEmail_ReturnCustomer(email);
 
@@ -65,8 +64,7 @@ public class CustomerService {
     @Transactional
     public void deleteAccount() {
 
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        String email = auth.getName();
+        String email = SecurityUtil.getCurrentUserEmail();
 
         Customer customer = validation.checkCustomerByEmail_ReturnCustomer(email);
 
