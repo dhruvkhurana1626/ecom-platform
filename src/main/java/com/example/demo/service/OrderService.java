@@ -2,7 +2,8 @@ package com.example.demo.service;
 
 import com.example.demo.Utility.Email;
 import com.example.demo.Utility.Validation;
-import com.example.demo.service.stripe.StripeService;
+import com.example.demo.security.utility.SecurityUtil;
+import com.example.demo.stripe.service.StripeService;
 import com.example.demo.dto.request.OrderEntityRequest;
 import com.example.demo.dto.response.OrderEntityResponse;
 import com.example.demo.enums.OrderStatus;
@@ -28,6 +29,7 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 @Service
 @RequiredArgsConstructor
@@ -45,15 +47,13 @@ public class OrderService {
     @Transactional
     public OrderEntityResponse placeOrder(OrderEntityRequest request) {
 
-        Authentication auth =
-                SecurityContextHolder.getContext().getAuthentication();
-        String email = auth.getName();
+        String email = SecurityUtil.getCurrentUserEmail();
 
         Customer customer = validation.checkCustomerByEmail_ReturnCustomer(email);
         Cart cart = validation.checkCartByCustomerId_ReturnCart(customer.getId());
 
         if(customer.getAddresses().isEmpty()){
-            throw new BusinessException("Pls add atleast 1 address before making an order");
+            throw new BusinessException("Pls add at least 1 address before making an order");
         }
 
         if (cart.getCartItems().isEmpty()) {throw new BusinessException("Cart is empty");}
@@ -176,7 +176,8 @@ public class OrderService {
             );
         }
 
-        email.sendEmailForOrderCancellation(order);
+        CompletableFuture.runAsync(()-> email.sendEmailForOrderCancellation(order) );
+
     }
 
     @Transactional
@@ -239,7 +240,8 @@ public class OrderService {
         order.setPaymentStatus(PaymentStatus.SUCCESS);
         order.setOrderStatus(OrderStatus.CONFIRMED);
 
-        email.sendEmailAfterOrderPlaced(order);
+        CompletableFuture.runAsync(()-> email.sendEmailAfterOrderPlaced(order) );
+
     }
 
     @Transactional
@@ -248,6 +250,6 @@ public class OrderService {
         order.setOrderStatus(OrderStatus.REFUNDED);
         order.setPaymentStatus(PaymentStatus.REFUNDED);
 
-        email.sendEmailForOrderRefund(order);
+        CompletableFuture.runAsync(()-> email.sendEmailForOrderRefund(order) );
     }
 }

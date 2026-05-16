@@ -27,6 +27,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.concurrent.CompletableFuture;
+
 
 @Service
 @RequiredArgsConstructor
@@ -50,7 +52,9 @@ public class AuthService {
         customer.setPassword(passwordEncoder.encode(request.getPassword()));
 
         Customer savedCustomer = customerRepository.save(customer);
-        email.sendEmailAtCustomerRegistration(savedCustomer);
+
+        CompletableFuture.runAsync(()-> email.sendEmailAtCustomerRegistration(savedCustomer));
+
         return CustomerTransformer.customerToCustomerResponse(savedCustomer);
     }
 
@@ -63,7 +67,9 @@ public class AuthService {
         seller.setPassword(passwordEncoder.encode(request.getPassword()));
 
         Seller savedSeller = sellerRepository.save(seller);
-        email.sendEmailAtSellerRegistration(savedSeller);
+
+        CompletableFuture.runAsync(()-> email.sendEmailAtSellerRegistration(savedSeller));
+
         return SellerTransformer.sellerToSellerResponse(savedSeller);
     }
 

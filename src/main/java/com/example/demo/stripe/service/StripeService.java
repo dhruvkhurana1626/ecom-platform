@@ -1,4 +1,4 @@
-package com.example.demo.service.stripe;
+package com.example.demo.stripe.service;
 
 import com.stripe.exception.StripeException;
 import com.stripe.model.Refund;

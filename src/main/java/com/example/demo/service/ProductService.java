@@ -13,8 +13,6 @@ import com.example.demo.security.utility.SecurityUtil;
 import com.example.demo.transformers.ProductTransformer;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

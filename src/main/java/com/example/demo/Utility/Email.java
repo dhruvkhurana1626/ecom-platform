@@ -1,26 +1,18 @@
 package com.example.demo.Utility;
 
-import com.example.demo.dto.response.AddressResponse;
-import com.example.demo.dto.response.OrderEntityResponse;
 import com.example.demo.model.Address;
 import com.example.demo.model.Customer;
 import com.example.demo.model.OrderEntity;
 import com.example.demo.model.Seller;
-import com.example.demo.repository.CustomerRepository;
-import com.example.demo.transformers.AddressTransformer;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
-import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Date;
 
 @Service
 @RequiredArgsConstructor

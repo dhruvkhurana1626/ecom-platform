@@ -1,4 +1,4 @@
-package com.example.demo.controller.stripe;
+package com.example.demo.stripe.controller;
 
 import com.example.demo.Utility.Validation;
 import com.example.demo.enums.PaymentStatus;
@@ -68,8 +68,6 @@ public class StripeWebhookController {
             OrderEntity order = validation.checkOrderByOrderId_ReturnOrder(orderId);
             order.setPaymentIntentId(paymentIntentId);
             orderEntityRepository.save(order);
-
-            System.out.println("Order updated: " + orderId);
         }
 
         if("checkout.session.expired".equals(event.getType())){
@@ -89,8 +87,6 @@ public class StripeWebhookController {
             OrderEntity order = validation.checkOrderByOrderId_ReturnOrder(orderId);
 
             orderService.cancelOrder(orderId);
-
-            System.out.println("Order marked cancelled: " + orderId);
         }
 
         if ("charge.refunded".equals(event.getType())) {
@@ -110,8 +106,6 @@ public class StripeWebhookController {
             if(order.getPaymentStatus() != PaymentStatus.REFUNDED){
 
                 orderService.markOrderRefunded(order);
-
-                System.out.println("Order refunded: " + order.getId());
             }
         }
 
