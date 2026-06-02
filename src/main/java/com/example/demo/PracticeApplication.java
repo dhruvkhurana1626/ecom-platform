@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 @ControllerAdvice
 
 public class
-PracticeApplication {
+ PracticeApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(PracticeApplication.class, args);
