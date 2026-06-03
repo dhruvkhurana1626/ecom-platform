@@ -2,8 +2,6 @@ package com.example.demo.service;
 
 import com.example.demo.Utility.Email;
 import com.example.demo.Utility.Validation;
-import com.example.demo.security.utility.SecurityUtil;
-import com.example.demo.stripe.service.StripeService;
 import com.example.demo.dto.request.OrderEntityRequest;
 import com.example.demo.dto.response.OrderEntityResponse;
 import com.example.demo.enums.OrderStatus;
@@ -14,6 +12,8 @@ import com.example.demo.model.*;
 import com.example.demo.repository.CustomerRepository;
 import com.example.demo.repository.OrderEntityRepository;
 import com.example.demo.repository.ProductRepository;
+import com.example.demo.security.utility.SecurityUtil;
+import com.example.demo.stripe.service.StripeService;
 import com.example.demo.transformers.OrderTransformer;
 import com.stripe.exception.StripeException;
 import com.stripe.model.checkout.Session;
@@ -118,8 +118,8 @@ public class OrderService {
         SessionCreateParams.Builder paramsBuilder =
                 SessionCreateParams.builder()
                         .setMode(SessionCreateParams.Mode.PAYMENT)
-                        .setSuccessUrl("http://localhost:3000/success")
-                        .setCancelUrl("http://localhost:3000/cancel")
+                        .setSuccessUrl("https://ecom-platform-frontend.vercel.app/success.html")
+                        .setCancelUrl("https://ecom-platform-frontend.vercel.app/cancel.html")
                         .putMetadata("orderId", savedOrder.getId().toString());
 
         for (OrderItems item : orderItemsList) {
