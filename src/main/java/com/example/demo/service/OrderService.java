@@ -37,7 +37,7 @@ import java.util.concurrent.CompletableFuture;
 public class OrderService {
 
     private final Validation validation;
-    private final Email email;
+    private final Email emailservice;
     private final OrderEntityRepository orderEntityRepository;
     private final CustomerRepository customerRepository;
     private final ProductRepository productRepository;
@@ -176,7 +176,7 @@ public class OrderService {
             );
         }
 
-        CompletableFuture.runAsync(()-> email.sendEmailForOrderCancellation(order) );
+        CompletableFuture.runAsync(()-> emailservice.sendEmailForOrderCancellation(order) );
 
     }
 
@@ -240,8 +240,12 @@ public class OrderService {
         order.setPaymentStatus(PaymentStatus.SUCCESS);
         order.setOrderStatus(OrderStatus.CONFIRMED);
 
-        CompletableFuture.runAsync(()-> email.sendEmailAfterOrderPlaced(order) );
+        //If order is SuccessFull im clearing the cart
+        String email = SecurityUtil.getCurrentUserEmail();
+        Customer customer = validation.checkCustomerByEmail_ReturnCustomer(email);
+        customer.getCart().getCartItems().clear();
 
+        CompletableFuture.runAsync(()-> emailservice.sendEmailAfterOrderPlaced(order) );
     }
 
     @Transactional
@@ -250,6 +254,6 @@ public class OrderService {
         order.setOrderStatus(OrderStatus.REFUNDED);
         order.setPaymentStatus(PaymentStatus.REFUNDED);
 
-        CompletableFuture.runAsync(()-> email.sendEmailForOrderRefund(order) );
+        CompletableFuture.runAsync(()-> emailservice.sendEmailForOrderRefund(order) );
     }
 }
